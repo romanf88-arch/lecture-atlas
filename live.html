@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#050814">
-<title>Lecture Atlas live list</title>
+<title>Lecture Atlas live</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap">
 <style>
-/* The student page. It only receives: a list of what the instructor has mentioned, newest at the top. It never asks for the microphone or the camera. */
+/* The student page. It only receives. A small globe and a timeline stay pinned at the top; the list of what the
+   instructor has mentioned scrolls under them. The three are linked: choosing an item in one shows it in the others.
+   The page never asks for the microphone or the camera. */
 :root{ --bg:#050814; --fg:#f4f0e6; --dim:#a3acc2; --line:rgba(255,255,255,.16); --panel:#0c1226; --accent:#ffb454;
   --serif:"Newsreader",Georgia,"Times New Roman",serif; --sans:"Inter","Segoe UI",system-ui,sans-serif; color-scheme:dark; }
 *{box-sizing:border-box}
@@ -19,64 +21,85 @@ a{color:var(--accent)}
 button{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 15px;min-height:44px;cursor:pointer}
 button:hover{border-color:var(--fg)}
 button.primary{background:var(--accent);border-color:var(--accent);color:#1b1104;font-weight:600}
-button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(5,8,20,.95);border-bottom:1px solid var(--line)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:0;z-index:6;height:46px;display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--line)}
 .brand{font-family:var(--serif);font-size:21px;font-weight:600;white-space:nowrap}
-.status{margin-left:auto;font-size:14px;text-align:right;line-height:1.25}
+.status{margin-left:auto;font-size:14px;text-align:right;line-height:1.2}
 .status::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--dim);margin-right:7px;vertical-align:middle}
 .status[data-s="on"]::before{background:#63e6a1;animation:pulse 1.4s infinite}
 .status[data-s="work"]::before{background:#b79cff;animation:pulse 1s infinite}
 .status[data-s="err"]{color:#ffb3a8}
 .status[data-s="err"]::before{background:#ff7a6b}
 @keyframes pulse{50%{opacity:.25}}
-main{max-width:1120px;margin:0 auto;padding:14px 16px 48px}
+main{max-width:1160px;margin:0 auto;padding:0 16px 48px}
 .enter{max-width:460px;margin:8vh auto 0}
 .enter h1{font-family:var(--serif);font-weight:600;font-size:32px;line-height:1.08;margin:0 0 10px}
 .enter p{margin:0 0 14px;color:var(--dim)}
 .enter form{display:flex;gap:8px}
 .enter input{flex:1;min-width:0;font:600 26px/1.2 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:10px;padding:10px 12px}
 .enter .msg{color:#ffb3a8;min-height:1.4em;margin-top:10px}
-.now{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--k,var(--line));border-radius:14px;overflow:hidden}
-.now.in{animation:arrive .5s cubic-bezier(.2,.9,.2,1)}
-@keyframes arrive{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-.now .ph{aspect-ratio:16/10;max-height:44vh;width:100%;background:#0a0f20;overflow:hidden}
-.now .ph img{width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block}
-.now .body{padding:13px 16px 16px}
-.now .lab{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:600}
-.now .lab span{color:var(--k)}
-.now h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,7.4vw,40px);line-height:1.04;margin:3px 0 6px;overflow-wrap:anywhere}
-.now p{margin:0 0 6px}
-.now .when{color:var(--dim);font-variant-numeric:tabular-nums;font-size:14.5px}
-.now .ext{color:var(--dim);font-size:15px;line-height:1.45}
-.go{display:inline-block;margin-top:8px;padding:10px 15px;border-radius:10px;background:var(--accent);color:#1b1104;font-weight:600;text-decoration:none}
-.now.empty{border-top-width:1px;padding:22px 18px}
-.now.empty h1{font-size:26px}
-.now.empty p{color:var(--dim)}
-.tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 8px}
-.tools h2{font-family:var(--serif);font-size:22px;font-weight:600;margin:0;flex:1}
+
+/* the pinned part: globe, the name of what is selected, timeline */
+.stage{position:sticky;top:46px;z-index:4;background:var(--bg);margin:0 -16px;border-bottom:1px solid var(--line)}
+.globe{position:relative;height:clamp(190px,36vh,330px);overflow:hidden}
+.globe canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.pin{position:absolute;left:0;top:0;width:46px;height:46px;border-radius:50%;border:3px solid var(--k,#fff);background:#0c1226;overflow:hidden;pointer-events:none;display:grid;place-items:center;box-shadow:0 2px 10px rgba(0,0,0,.65)}
+.pin::before{content:attr(data-l);grid-area:1/1;font-family:var(--serif);font-size:22px;color:var(--k)}
+.pin img{grid-area:1/1;width:100%;height:100%;object-fit:cover;object-position:center 22%}
+.cap{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;align-items:baseline;padding:24px 58px 7px 16px;background:linear-gradient(to top,var(--bg) 32%,rgba(5,8,20,0));pointer-events:none;white-space:nowrap}
+.cap i{width:9px;height:9px;border-radius:50%;flex:none;align-self:center}
+.cap b{font-family:var(--serif);font-size:19px;font-weight:600;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cap span{color:var(--dim);font-size:13px;flex:none;font-variant-numeric:tabular-nums}
+.cap .dim{font-size:14px}
+.fold{position:absolute;right:10px;bottom:3px;width:40px;height:40px;min-height:0;padding:0;border-radius:50%;background:rgba(12,18,38,.88)}
+.fold::before{content:"";display:block;width:9px;height:9px;margin:3px auto 0;border-left:2px solid var(--fg);border-top:2px solid var(--fg);transform:rotate(45deg)}
+.stage.folded .fold::before{transform:rotate(225deg);margin-top:-4px}
+.stage.folded .globe{height:44px}
+.stage.folded .globe canvas,.stage.folded .pin{display:none!important}
+.stage.folded .cap{background:none;padding-top:10px}
+#tl{display:block;width:100%;height:44px;touch-action:none;cursor:pointer}
+#tl text{font-family:var(--sans);font-size:11.5px;fill:var(--dim)}
+
+.hint{padding:22px 2px 0}
+.hint h1{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.1;margin:0 0 8px}
+.hint p{color:var(--dim);margin:0 0 8px}
+.tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
+.tools h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:0;flex:1}
 .seg{display:flex}
-.seg button{border-radius:0;min-height:40px;padding:7px 12px;font-size:14px}
+.seg button{border-radius:0;min-height:38px;padding:6px 12px;font-size:14px}
 .seg button:first-child{border-radius:10px 0 0 10px}
 .seg button:last-child{border-radius:0 10px 10px 0;border-left:0}
 .seg button[aria-pressed="true"]{background:var(--fg);color:#10131f;border-color:var(--fg);font-weight:600}
 .list h3{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin:18px 0 4px;font-weight:600}
 .row{border-bottom:1px solid var(--line)}
-.row summary{display:grid;grid-template-columns:52px minmax(0,1fr) 14px;gap:12px;align-items:center;padding:9px 2px;cursor:pointer;list-style:none;min-height:64px}
-.row summary::-webkit-details-marker{display:none}
-.row summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(45deg);transition:transform .15s}
-.row[open] summary::after{transform:rotate(-135deg)}
-.pic{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:center 22%;background:#0a0f20;border:2.5px solid var(--k);display:block}
-span.pic{display:grid;place-items:center;font-family:var(--serif);font-size:22px;color:var(--k)}
+.row .hd{display:grid;grid-template-columns:48px minmax(0,1fr) 14px;gap:12px;align-items:center;width:100%;min-height:62px;padding:7px 4px;text-align:left;background:none;border:0;border-radius:0;color:inherit}
+.row.sel{background:rgba(255,255,255,.05);box-shadow:inset 3px 0 0 var(--k)}
+.row.sel .hd{padding-left:11px}
+.chev{width:8px;height:8px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(45deg);transition:transform .15s}
+.row.sel .chev{transform:rotate(-135deg)}
+.pic{width:48px;height:48px;border-radius:50%;object-fit:cover;object-position:center 22%;background:#0a0f20;border:2.5px solid var(--k);display:block}
+span.pic{display:grid;place-items:center;font-family:var(--serif);font-size:21px;color:var(--k)}
 .tx b{display:block;font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.15;overflow-wrap:anywhere}
 .tx span{color:var(--dim);font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.row .more{padding:0 2px 14px 66px}
-.row .more p{margin:0 0 4px;color:var(--dim);font-size:15px;line-height:1.45}
-.row.new summary{animation:flash 1.8s ease-out}
+.more{display:flex;gap:12px;padding:2px 10px 14px 11px}
+.big{width:92px;height:116px;border-radius:8px;object-fit:cover;object-position:center 22%;flex:none;background:#0a0f20}
+.more .kd{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--k);font-weight:600;margin:0 0 4px}
+.more p{margin:0 0 4px;color:var(--dim);font-size:15px;line-height:1.45}
+.go{display:inline-block;margin-top:6px;padding:9px 14px;border-radius:10px;background:var(--accent);color:#1b1104;font-weight:600;text-decoration:none}
+.row.new .hd{animation:flash 1.8s ease-out}
 @keyframes flash{from{background:rgba(255,180,84,.24)}to{background:transparent}}
 .save{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
 footer{margin-top:26px;color:var(--dim);font-size:13px;line-height:1.5}
-.pill{position:fixed;left:50%;top:62px;transform:translateX(-50%);z-index:6;max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:999px;background:var(--accent);border-color:var(--accent);color:#1b1104;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.5);min-height:40px;padding:8px 16px}
-@media (min-width:900px){ .cols{display:grid;grid-template-columns:minmax(0,430px) minmax(0,1fr);gap:30px;align-items:start} .now{position:sticky;top:66px} .tools{margin-top:0} .now h1{font-size:38px} }
+.pill{position:fixed;left:50%;top:62px;transform:translateX(-50%);z-index:5;max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:999px;background:var(--accent);border-color:var(--accent);color:#1b1104;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.5);min-height:40px;padding:8px 16px}
+@media (min-width:900px){
+  main{padding-top:16px}
+  .cols{display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr);gap:30px;align-items:start}
+  .stage{top:62px;margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .globe{height:min(58vh,470px)}
+  .fold{display:none}
+  .tools{margin-top:0}
+  .hint{padding-top:6px}
+}
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 </head>
@@ -91,14 +114,22 @@ footer{margin-top:26px;color:var(--dim);font-size:13px;line-height:1.5}
   </section>
   <section id="live" hidden>
     <div class="cols">
-      <article class="now empty" id="now" aria-live="polite"></article>
+      <div class="stage" id="stage">
+        <div class="globe" id="globe">
+          <div class="pin" id="pin" hidden><img alt=""></div>
+          <div class="cap" id="cap" aria-live="polite"></div>
+          <button class="fold" id="bFold" aria-label="Hide the globe" title="Hide or show the globe"></button>
+        </div>
+        <svg id="tl" role="img" aria-label="Timeline of everything mentioned. Drag along it to move through the items by date."></svg>
+      </div>
       <div>
+        <div class="hint" id="hint"><h1>Nothing has been mentioned yet.</h1><p>People, places, works, and ideas will appear here, on the globe, and on the timeline as your instructor speaks.</p><p>If nothing appears, check that this code matches the one on your instructor's screen: <b id="codeHint"></b></p></div>
         <div id="rest" hidden>
           <div class="tools"><h2 id="count">Everything mentioned</h2><div class="seg" role="group" aria-label="Order of the list"><button id="vOrder" aria-pressed="true">Newest first</button><button id="vType" aria-pressed="false">By type</button></div></div>
           <div class="list" id="list"></div>
           <div class="save"><button id="bCopy">Copy the list</button><button id="bSend" hidden>Send the list</button><button id="bSave">Save as a web page</button></div>
         </div>
-        <footer>Code <b id="codeShow"></b>. <a href="#" id="changeCode">Use a different code</a>. This page does not use your microphone or camera. Text and pictures come from Wikipedia and Wikimedia Commons under their own licenses.</footer>
+        <footer>Code <b id="codeShow"></b>. <a href="#" id="changeCode">Use a different code</a>. Drag the globe to turn it. Tap a pin, a date, or a name to see it in all three places. This page does not use your microphone or camera. Text and pictures come from Wikipedia and Wikimedia Commons under their own licenses. Coastlines come from Natural Earth.</footer>
       </div>
     </div>
   </section>
@@ -110,15 +141,19 @@ footer{margin-top:26px;color:var(--dim);font-size:13px;line-height:1.5}
 "use strict";
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
 const RELAYS = ["wss://broker.emqx.io:8084/mqtt", "wss://test.mosquitto.org:8081", "wss://broker.hivemq.com:8884/mqtt"];
-const MQTT_JS = "https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js";
+const MQTT_JS = "https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js", THREE_JS = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
 const B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ", EC = { name: "ECDSA", namedCurve: "P-256" }, WIKI = "https://en.wikipedia.org/wiki/";
 const KNAME = { person: "Person", place: "Place", work: "Work", event: "Event", idea: "Idea" };
 const KCOL = { person: "#ffb454", place: "#4fd1b5", work: "#b79cff", event: "#ff7a6b", idea: "#6fb1ff" };
 const GROUPS = [["person", "People"], ["place", "Places and institutions"], ["work", "Works"], ["event", "Events"], ["idea", "Ideas and things"]];
-const me = Math.random().toString(36).slice(2, 12);
+const me = Math.random().toString(36).slice(2, 12), wide = matchMedia("(min-width:900px)");
 let code = "", base = "", clients = [], items = [], stateT = 0, beatT = 0, lastRaw = "", live = false, heard = 0, gotState = 0, started = Date.now(), view = "order", libFail = false, firstPaint = true, hiddenAt = 0;
-const rows = new Map(), heads = new Map(), keys = new Map(), known = new Map(); let prev = new Set(), lastClear = 0;
+let selT = "", manualUntil = 0, focusSig = "", prev = new Set(), lastClear = 0;
+const rows = new Map(), heads = new Map(), keys = new Map(), known = new Map(), links = new Set();
+const loadScript = src => new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = src; sc.onload = ok; sc.onerror = () => no(new Error("script")); document.head.appendChild(sc); });
+const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 function setStatus(s, text) { const el = $("status"); if (el.dataset.s !== s) el.dataset.s = s; if (el.textContent !== text) el.textContent = text; }
 // codes use letters and digits that are hard to confuse; O, I, and L typed by mistake are read as 0 and 1
@@ -128,9 +163,11 @@ function hashCode() { let h = location.hash.slice(1); try { h = decodeURICompone
 const unb64 = t => { const b = atob(t.replace(/-/g, "+").replace(/_/g, "/")), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
 async function codeOf(rawKey) { const h = new Uint8Array(await crypto.subtle.digest("SHA-256", rawKey)); let out = "", acc = 0, bits = 0; for (let i = 0; i < 5; i++) { acc = (acc << 8) | h[i]; bits += 8; while (bits >= 5) { out += B32[(acc >> (bits - 5)) & 31]; bits -= 5; } acc &= (1 << bits) - 1; } return out; }
 
-/* ---- only messages signed by the instructor's page are shown ----
-   Each message carries a public key and a signature. The lecture code is a short hash of that key, so a
-   message from anyone else fails one of the two checks and is dropped. */
+/* ============================================================
+   1. Receiving
+   Only messages signed by the instructor's page are shown. Each message carries a public key and a signature.
+   The lecture code is a short hash of that key, so a message from anyone else fails one of the two checks.
+   ============================================================ */
 async function check(raw) {
   let m; try { m = JSON.parse(raw); } catch (e) { return null; }
   if (!m || typeof m.k !== "string" || typeof m.s !== "string" || typeof m.d !== "string" || m.k.length > 200) return null;
@@ -152,8 +189,9 @@ async function onMessage(tp, payload, packet) {
   paintStatus();
 }
 function tidy(o) {
-  if (!o || typeof o.t !== "string" || !o.t) return null; const str = (v, n) => typeof v === "string" ? v.slice(0, n) : "";
-  const it = { t: o.t.slice(0, 200), k: KNAME[o.k] ? o.k : "idea", d: str(o.d, 300), x: str(o.x, 420), w: str(o.w, 60), i: "", u: "" };
+  if (!o || typeof o.t !== "string" || !o.t) return null; const str = (v, n) => typeof v === "string" ? v.slice(0, n) : "", num = (v, a, b) => typeof v === "number" && v >= a && v <= b ? v : null;
+  const it = { t: o.t.slice(0, 200), k: KNAME[o.k] ? o.k : "idea", d: str(o.d, 300), x: str(o.x, 420), w: str(o.w, 60), i: "", u: "", a: num(o.a, -90, 90), o: num(o.o, -180, 180), y: num(o.y, -20000, 3000), z: num(o.z, -20000, 3000) };
+  if (it.a == null || it.o == null) it.a = it.o = null;
   if (typeof o.i === "string" && o.i.length < 600 && /^https:\/\/[a-z0-9-]+\.(wikimedia|wikipedia)\.org\//.test(o.i)) it.i = o.i;
   it.u = typeof o.u === "string" && /^https:\/\/[a-z-]+\.wikipedia\.org\//.test(o.u) ? o.u : WIKI + encodeURIComponent(it.t.replace(/ /g, "_"));
   return it;
@@ -163,51 +201,78 @@ function tidy(o) {
 function apply(d) {
   if (typeof d.c === "number" && d.c && d.c !== lastClear) { known.clear(); lastClear = d.c; }
   if (Array.isArray(d.g)) for (const t of d.g) if (typeof t === "string") known.delete(t);
-  const fresh = [], now = new Set();
-  for (const o of d.items.slice(-300)) { const it = tidy(o); if (!it || now.has(it.t)) continue; now.add(it.t);
+  const fresh = [], now = new Set(), list = d.items.slice(-300);
+  for (const o of list) { const it = tidy(o); if (!it || now.has(it.t)) continue; now.add(it.t);
     if (!prev.has(it.t)) { fresh.push(it); known.delete(it.t); }        // newly mentioned: it goes to the top, even if it was on the list from earlier
     known.set(it.t, it); }
   prev = now; while (known.size > 600) known.delete(known.keys().next().value);
-  items = [...known.values()]; render(fresh);
+  if (Array.isArray(d.l)) for (const pr of d.l.slice(0, 800)) { if (!Array.isArray(pr)) continue; const a = list[pr[0]], b = list[pr[1]], x = a && typeof a.t === "string" ? a.t.slice(0, 200) : "", y = b && typeof b.t === "string" ? b.t.slice(0, 200) : ""; if (x && y && x !== y) links.add(x < y ? x + "\n" + y : y + "\n" + x); }
+  for (const k of [...links]) { const p = k.split("\n"); if (!known.has(p[0]) || !known.has(p[1])) links.delete(k); }
+  items = [...known.values()];
+  const newest = items[items.length - 1], follow = Date.now() > manualUntil;
+  keepPlace(() => {
+    render(fresh); syncPins(); syncArcs();
+    if (fresh.length && follow && newest) select(newest.t, "auto");
+    else if (selT && !known.has(selT)) select(follow && newest ? newest.t : "", "auto");
+    else { paintCaption(); drawTimeline(); const sig = sigOf(selT); if (sig !== focusSig) { focusSig = sig; if (follow) focusGlobe(); } kick(); }
+  });
 }
 
-/* ---- the page ---- */
-const small = u => /\/thumb\//.test(u) ? u.replace(/\/\d+px-([^/?]+)(\?.*)?$/, "/120px-$1$2") : u;       // a small picture is enough for the list; 120 is one of the sizes Wikimedia serves
-function pic(it) { return it.i ? '<img class="pic" src="' + esc(small(it.i)) + '" data-full="' + esc(it.i) + '" alt="" loading="lazy" decoding="async">' : '<span class="pic" aria-hidden="true">' + esc(it.t.slice(0, 1)) + "</span>"; }
-document.addEventListener("error", ev => { const im = ev.target; if (!im || im.tagName !== "IMG") return; if (im.dataset.full && im.src !== im.dataset.full) im.src = im.dataset.full; else im.style.visibility = "hidden"; }, true);
-function paintNow(animate) {
-  const el = $("now"), it = items[items.length - 1];
-  if (!it) { if (el._sig !== "none") { el._sig = "none"; el._t = ""; el.className = "now empty"; el.style.removeProperty("--k"); el.innerHTML = "<h1>Nothing has been mentioned yet.</h1><p>People, places, works, and ideas will appear here as your instructor speaks.</p><p>If nothing appears, check that this code matches the one on your instructor's screen: <b>" + esc(pretty(code)) + "</b></p>"; } return; }
-  const sig = JSON.stringify(it); if (el._sig === sig) return; const changed = el._t !== it.t; el._sig = sig; el._t = it.t;
-  el.className = "now"; el.style.setProperty("--k", KCOL[it.k]);
-  el.innerHTML = (it.i ? '<div class="ph"><img src="' + esc(it.i) + '" alt=""></div>' : "") + '<div class="body"><div class="lab">Just mentioned · <span>' + KNAME[it.k] + "</span></div><h1>" + esc(it.t) + "</h1>" + (it.d ? '<p class="desc">' + esc(it.d) + "</p>" : "") + (it.w ? '<p class="when">' + esc(it.w) + "</p>" : "") + (it.x ? '<p class="ext">' + esc(it.x) + "</p>" : "") + '<a class="go" href="' + esc(it.u) + '" target="_blank" rel="noopener">Read on Wikipedia</a></div>';
-  if (changed && animate) { el.classList.remove("in"); void el.offsetWidth; el.classList.add("in"); }
+/* ============================================================
+   2. Choosing an item: the globe, the timeline, and the list all show the same one
+   ============================================================ */
+const sigOf = t => t + "|" + (pins.has(t) ? pins.get(t).sig : "");
+function select(t, how) {
+  if (how === "tap") manualUntil = Date.now() + 30000;          // the student is looking at something: new mentions wait for half a minute
+  const was = selT; selT = known.has(t) ? t : "";
+  if (was !== selT) { const a = rows.get(was), b = rows.get(selT); if (a) paintRow(a, false); if (b) paintRow(b, true); }
+  paintCaption(); drawTimeline(); paintArcs(); focusSig = sigOf(selT); focusGlobe();
+}
+function paintCaption() {
+  const it = known.get(selT), el = $("cap");
+  if (!it) { el.innerHTML = '<span class="dim">' + (items.length ? "Tap a name, a pin, or a date." : "Waiting for the first mention.") + "</span>"; return; }
+  el.innerHTML = '<i style="background:' + KCOL[it.k] + '"></i><b>' + esc(it.t) + "</b><span>" + esc([it.w, it.a == null ? "no single place" : ""].filter(Boolean).join(" · ")) + "</span>";
+}
+function edgeY() { return wide.matches ? 62 : $("stage").getBoundingClientRect().bottom; }        // where the visible part of the list starts
+function reveal(el) { if (!el || !el.isConnected) return; const edge = edgeY(), r = el.getBoundingClientRect(); if (r.top < edge + 4 || r.top > innerHeight - 90) window.scrollBy({ top: r.top - edge - 8, behavior: "smooth" }); }
+// keeps the row the reader is looking at where it is while rows are added or opened above it
+function keepPlace(fn) {
+  let anchor = null, top0 = 0; if (window.scrollY > 4) { const edge = edgeY(); for (const el of $("list").children) { const r = el.getBoundingClientRect(); if (r.bottom > edge + 8) { anchor = el; top0 = r.top; break; } } }
+  fn(); if (anchor && anchor.isConnected) { const dy = anchor.getBoundingClientRect().top - top0; if (dy) window.scrollBy(0, dy); }
+}
+
+/* ============================================================
+   3. The list
+   ============================================================ */
+const sized = (u, px) => /\/thumb\//.test(u) ? u.replace(/\/\d+px-([^/?]+)(\?.*)?$/, "/" + px + "px-$1$2") : u;       // 120 and 250 are sizes Wikimedia serves
+function pic(it) { return it.i ? '<img class="pic" src="' + esc(sized(it.i, 120)) + '" data-full="' + esc(it.i) + '" alt="" loading="lazy" decoding="async">' : '<span class="pic" aria-hidden="true">' + esc(it.t.slice(0, 1)) + "</span>"; }
+document.addEventListener("error", ev => { const im = ev.target; if (!im || im.tagName !== "IMG") return; if (im.dataset.full && im.getAttribute("src") !== im.dataset.full) im.src = im.dataset.full; else if (im.classList.contains("big")) im.style.display = "none"; else im.style.visibility = "hidden"; }, true);
+function paintRow(el, on) {
+  el.classList.toggle("sel", on); const hd = el.querySelector(".hd"), more = el.querySelector(".more"); if (!hd) return;
+  hd.setAttribute("aria-expanded", String(on)); more.hidden = !on; if (on) { const im = more.querySelector("img.big"); if (im && !im.getAttribute("src")) im.src = im.dataset.src; }
 }
 function rowFor(it, isNew) {
   let el = rows.get(it.t); const sig = JSON.stringify(it);
-  if (!el) { el = document.createElement("details"); rows.set(it.t, el); }
-  el.className = "row" + (isNew ? " new" : ""); if (el._sig === sig) return el; el._sig = sig; el.style.setProperty("--k", KCOL[it.k]);
-  el.innerHTML = "<summary>" + pic(it) + '<span class="tx"><b>' + esc(it.t) + "</b><span>" + esc((it.w ? it.w + " · " : "") + (it.d || KNAME[it.k])) + '</span></span></summary><div class="more">' + (it.x ? "<p>" + esc(it.x) + "</p>" : "") + '<a class="go" href="' + esc(it.u) + '" target="_blank" rel="noopener">Read on Wikipedia</a></div>';
-  return el;
+  if (!el) { el = document.createElement("div"); rows.set(it.t, el); }
+  el.className = "row" + (isNew ? " new" : "") + (it.t === selT ? " sel" : ""); if (el._sig === sig) return el; el._sig = sig; el.style.setProperty("--k", KCOL[it.k]);
+  el.innerHTML = '<button class="hd" aria-expanded="false">' + pic(it) + '<span class="tx"><b>' + esc(it.t) + "</b><span>" + esc((it.w ? it.w + " · " : "") + (it.d || KNAME[it.k])) + '</span></span><i class="chev" aria-hidden="true"></i></button><div class="more" hidden>' + (it.i ? '<img class="big" data-src="' + esc(sized(it.i, 250)) + '" data-full="' + esc(it.i) + '" alt="">' : "") + '<div><p class="kd">' + KNAME[it.k] + (it.a == null ? " · no single place" : "") + "</p>" + (it.x ? "<p>" + esc(it.x) + "</p>" : "") + '<a class="go" href="' + esc(it.u) + '" target="_blank" rel="noopener">Read on Wikipedia</a></div></div>';
+  el.querySelector(".hd").onclick = () => { if (selT === it.t) { select("", "tap"); manualUntil = 0; } else select(it.t, "tap"); };
+  paintRow(el, it.t === selT); return el;
 }
 function headFor(name) { let h = heads.get(name); if (!h) { h = document.createElement("h3"); h.textContent = name; heads.set(name, h); } return h; }
 function render(fresh) {
-  const freshSet = new Set((fresh || []).map(x => x.t)), list = $("list"), isNew = it => !firstPaint && freshSet.has(it.t);
-  // keep the reader's place when rows are added above what they are reading
-  let anchor = null, top0 = 0; if (window.scrollY > 4) for (const el of list.children) { const r = el.getBoundingClientRect(); if (r.bottom > 60) { anchor = el; top0 = r.top; break; } }
+  const freshSet = new Set((fresh || []).map(x => x.t)), isNew = it => !firstPaint && freshSet.has(it.t);
   const have = new Set(items.map(x => x.t)); for (const t of [...rows.keys()]) if (!have.has(t)) rows.delete(t);
   const nodes = [];
   if (view === "type") { for (const [k, name] of GROUPS) { const g = items.filter(x => x.k === k); if (!g.length) continue; nodes.push(headFor(name)); for (const it of g) nodes.push(rowFor(it, isNew(it))); } }
   else for (let i = items.length - 1; i >= 0; i--) nodes.push(rowFor(items[i], isNew(items[i])));
-  list.replaceChildren(...nodes);
-  $("count").textContent = items.length + " mentioned"; $("rest").hidden = !items.length;
-  paintNow(!firstPaint);
-  if (anchor && anchor.isConnected) { const d = anchor.getBoundingClientRect().top - top0; if (d) window.scrollBy(0, d); }
-  if (fresh && fresh.length && !firstPaint && window.scrollY > 260) { $("pill").textContent = "New: " + fresh[fresh.length - 1].t; $("pill").hidden = false; }
+  $("list").replaceChildren(...nodes);
+  $("count").textContent = items.length + " mentioned"; $("rest").hidden = !items.length; $("hint").hidden = !!items.length;
+  if (fresh && fresh.length && !firstPaint && (window.scrollY > 260 || Date.now() < manualUntil)) { const p = $("pill"); p.textContent = "New: " + fresh[fresh.length - 1].t; p.style.top = Math.round(edgeY() + 8) + "px"; p.hidden = false; }
   if (gotState) firstPaint = false;
 }
-addEventListener("scroll", () => { if (window.scrollY < 120) $("pill").hidden = true; }, { passive: true });
-$("pill").onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); $("pill").hidden = true; };
+addEventListener("scroll", () => { if (window.scrollY < 120 && Date.now() > manualUntil) $("pill").hidden = true; }, { passive: true });
+$("pill").onclick = () => { $("pill").hidden = true; manualUntil = 0; window.scrollTo({ top: 0, behavior: "smooth" }); const n = items[items.length - 1]; if (n) select(n.t, "auto"); };
 function setView(v) { view = v; $("vOrder").setAttribute("aria-pressed", String(v === "order")); $("vType").setAttribute("aria-pressed", String(v === "type")); render([]); }
 $("vOrder").onclick = () => setView("order"); $("vType").onclick = () => setView("type");
 
@@ -223,7 +288,137 @@ $("bSave").onclick = () => {
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([html], { type: "text/html" })); a.download = "reading-list.html"; document.body.appendChild(a); a.click(); a.remove();
 };
 
-/* ---- the connection ---- */
+/* ============================================================
+   4. The timeline strip: one dot for each dated item. Drag along it to move through them.
+   ============================================================ */
+let tlPts = [];
+function drawTimeline() {
+  const svg = $("tl"), W = svg.clientWidth || Math.min(innerWidth, 470), dated = items.filter(i => i.y != null).sort((a, b) => a.y - b.y); tlPts = [];
+  if (!dated.length) { svg.innerHTML = '<text x="16" y="27">Dates will line up here.</text>'; return; }
+  const NOW = new Date().getFullYear(); let min = Math.min(...dated.map(i => i.y), NOW - 60), max = NOW + 6; min -= Math.max(20, (max - min) * 0.04);
+  // long spans are squeezed toward the past, the same way as on the instructor's screen, so recent centuries keep their room
+  const fish = max - min > 600, X = y => { const f = fish ? 1 - Math.log(1 + (max - y) / 35) / Math.log(1 + (max - min) / 35) : (y - min) / (max - min); return 16 + clamp(f, 0, 1) * (W - 32); };
+  let h = '<line x1="16" x2="' + (W - 16) + '" y1="15" y2="15" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>', lastX = -99, top = "";
+  for (const y of [-3000, -2000, -1000, -500, 0, 500, 1000, 1250, 1500, 1600, 1700, 1800, 1850, 1900, 1925, 1950, 1975, 2000, 2020].filter(y => y > min && y < max)) { const x = X(y); if (x - lastX < 54 || x < 30 || x > W - 30) continue; lastX = x; h += '<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="11" y2="19" stroke="rgba(255,255,255,.4)"/><text x="' + x.toFixed(1) + '" y="37" text-anchor="middle">' + (y === 0 ? "1 AD" : y < 0 ? (-y) + " BC" : y) + "</text>"; }
+  for (const it of dated) { const living = it.k === "person" && it.z == null && it.y > NOW - 105, x0 = X(it.y), x1 = it.z != null ? X(it.z) : living ? X(NOW) : x0, col = KCOL[it.k], on = it.t === selT; tlPts.push({ t: it.t, x: x0 });
+    let s = ""; if (x1 - x0 > 3) s += '<line x1="' + x0.toFixed(1) + '" x2="' + x1.toFixed(1) + '" y1="15" y2="15" stroke="' + col + '" stroke-width="' + (on ? 6 : 4) + '" stroke-linecap="round" opacity="' + (on ? 1 : living ? 0.3 : 0.6) + '"/>';
+    s += on ? '<circle cx="' + x0.toFixed(1) + '" cy="15" r="7.5" fill="' + col + '" stroke="#fff" stroke-width="2"/>' : '<circle cx="' + x0.toFixed(1) + '" cy="15" r="4.5" fill="' + col + '"/>';
+    if (on) top += s; else h += s; }
+  svg.innerHTML = h + top;
+}
+{ const tl = $("tl"); let scrub = false;
+  const at = ev => { if (!tlPts.length) return; const x = ev.clientX - tl.getBoundingClientRect().left; let best = tlPts[0]; for (const p of tlPts) if (Math.abs(p.x - x) < Math.abs(best.x - x)) best = p; if (best.t !== selT) select(best.t, "tap"); else manualUntil = Date.now() + 30000; };
+  const end = () => { if (!scrub) return; scrub = false; reveal(rows.get(selT)); };
+  tl.addEventListener("pointerdown", ev => { scrub = true; try { tl.setPointerCapture(ev.pointerId); } catch (e) {} at(ev); });
+  tl.addEventListener("pointermove", ev => { if (scrub) at(ev); }); tl.addEventListener("pointerup", end); tl.addEventListener("pointercancel", end); }
+addEventListener("resize", () => { drawTimeline(); kick(); });
+
+/* ============================================================
+   5. The globe
+   It draws only while something is moving, so an idle page costs a phone very little.
+   ============================================================ */
+let G = null, targetQ = null, userZoom = 0, clock = 0, raf = 0, animUntil = 0, lastFrame = 0, lastDraw = 0, dragging = false, pinShown = false, tmp, tmpN, tmpC;
+const pins = new Map(), arcs = [], dotTex = {};
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+const dirOf = (lat, lon) => { const a = lat * Math.PI / 180, o = lon * Math.PI / 180; return V3(Math.cos(a) * Math.cos(o), Math.sin(a), -Math.cos(a) * Math.sin(o)); };
+function quatFor(dir) {   // the turn that brings this spot on the Earth round to face the viewer
+  const lon = Math.atan2(-dir.z, dir.x), lat = Math.asin(clamp(dir.y, -1, 1));
+  return new THREE.Quaternion().setFromAxisAngle(V3(1, 0, 0), lat + 0.05).multiply(new THREE.Quaternion().setFromAxisAngle(V3(0, 1, 0), -Math.PI / 2 - lon));
+}
+function texFor(kind) { if (dotTex[kind]) return dotTex[kind]; const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d"); g.beginPath(); g.arc(32, 32, 21, 0, 7); g.fillStyle = KCOL[kind]; g.fill(); g.lineWidth = 6; g.strokeStyle = "rgba(5,8,20,.92)"; g.stroke(); return dotTex[kind] = new THREE.CanvasTexture(c); }
+function initGlobe(land) {
+  const box = $("globe"); let renderer; try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); } catch (e) { $("stage").classList.add("folded"); $("bFold").hidden = true; return; }
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1)); const cv = renderer.domElement; box.prepend(cv);
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x050814);
+  const camera = new THREE.PerspectiveCamera(38, 1.6, 0.05, 200); camera.position.set(0, 0, 3.3);
+  const holder = new THREE.Group(); scene.add(holder); const globe = new THREE.Group(); holder.add(globe);
+  // the map, painted once onto the sphere
+  const c = document.createElement("canvas"); c.width = 2048; c.height = 1024; const g = c.getContext("2d");
+  const og = g.createLinearGradient(0, 0, 0, 1024); og.addColorStop(0, "#0a1a3a"); og.addColorStop(0.5, "#0b2146"); og.addColorStop(1, "#0a1a3a"); g.fillStyle = og; g.fillRect(0, 0, 2048, 1024);
+  g.strokeStyle = "rgba(140,180,255,.13)"; g.lineWidth = 1; for (let lo = 0; lo <= 360; lo += 30) { g.beginPath(); g.moveTo(lo / 360 * 2048, 0); g.lineTo(lo / 360 * 2048, 1024); g.stroke(); } for (let la = 0; la <= 180; la += 30) { g.beginPath(); g.moveTo(0, la / 180 * 1024); g.lineTo(2048, la / 180 * 1024); g.stroke(); }
+  if (land) { g.save(); g.scale(2048 / 3600, 1024 / 1800); const path = new Path2D(land); g.shadowColor = "rgba(120,190,255,.9)"; g.shadowBlur = 8; g.fillStyle = "#1c3a6b"; g.fill(path); g.shadowBlur = 0; g.fillStyle = "#234878"; g.fill(path); g.lineWidth = 2.6; g.strokeStyle = "rgba(160,215,255,.95)"; g.stroke(path); g.restore(); }
+  const tex = new THREE.CanvasTexture(c); tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  globe.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), new THREE.MeshBasicMaterial({ map: tex })));
+  const hc = document.createElement("canvas"); hc.width = hc.height = 256; const hg = hc.getContext("2d"), rg = hg.createRadialGradient(128, 128, 82, 128, 128, 128); rg.addColorStop(0, "rgba(110,170,255,.95)"); rg.addColorStop(0.3, "rgba(70,130,255,.3)"); rg.addColorStop(1, "rgba(0,0,0,0)"); hg.fillStyle = rg; hg.fillRect(0, 0, 256, 256);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(hc), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); halo.scale.set(3.12, 3.12, 1); halo.renderOrder = -1; holder.add(halo);
+  const sp = []; let s = 11; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  for (let i = 0; i < 500; i++) { const u = rnd() * 6.2832, v = Math.acos(2 * rnd() - 1), r = 60 + rnd() * 40; sp.push(Math.sin(v) * Math.cos(u) * r, Math.cos(v) * r, Math.sin(v) * Math.sin(u) * r); }
+  const sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3)); scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xcfd8ff, size: 1.5, sizeAttenuation: false, transparent: true, opacity: 0.75 })));
+  tmp = V3(0, 0, 0); tmpN = V3(0, 0, 0); tmpC = V3(0, 0, 0);
+  targetQ = quatFor(V3(0.6, 0.55, 0.58).normalize()); globe.quaternion.copy(targetQ);
+  G = { renderer, scene, camera, holder, globe, cv };
+  // one finger turns the globe, two fingers zoom, a tap picks the nearest pin
+  const pts = new Map(); let pinch0 = 0, zoom0 = 0, downAt = null;
+  cv.addEventListener("pointerdown", e => { try { cv.setPointerCapture(e.pointerId); } catch (err) {} pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pts.size === 1) downAt = { x: e.clientX, y: e.clientY }; else { downAt = null; const v = [...pts.values()]; pinch0 = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y); zoom0 = userZoom; } dragging = true; kick(); });
+  cv.addEventListener("pointermove", e => { const p = pts.get(e.pointerId); if (!p) return;
+    if (pts.size === 1) { const k = 0.0065 * (camera.position.z / 3), q = new THREE.Quaternion().setFromEuler(new THREE.Euler((e.clientY - p.y) * k, (e.clientX - p.x) * k, 0, "XYZ")); targetQ.premultiply(q); globe.quaternion.premultiply(q); if (downAt && Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y) > 8) manualUntil = Date.now() + 30000; }
+    p.x = e.clientX; p.y = e.clientY;
+    if (pts.size === 2 && pinch0) { const v = [...pts.values()]; userZoom = clamp(zoom0 - (Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) / pinch0 - 1) * 1.6, -1.2, 1.6); manualUntil = Date.now() + 30000; }
+    kick(); });
+  const up = e => { pts.delete(e.pointerId); pinch0 = 0; if (!pts.size) dragging = false; if (downAt && e.type === "pointerup" && Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y) < 8) tapGlobe(e.clientX, e.clientY); if (!pts.size) downAt = null; kick(); };
+  cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+  cv.addEventListener("wheel", e => { userZoom = clamp(userZoom + e.deltaY * 0.0012, -1.2, 1.6); e.preventDefault(); kick(); }, { passive: false });
+  syncPins(); syncArcs(); focusSig = sigOf(selT); focusGlobe(); kick(2500);
+}
+// where a pin is on the screen, or null if it is on the far side of the Earth
+function screenOf(p, w, h) {
+  tmp.copy(p.pos).applyMatrix4(G.globe.matrixWorld); tmpN.copy(p.pos).normalize().applyQuaternion(G.globe.quaternion);
+  if (tmpN.dot(tmpC.copy(G.camera.position).sub(tmp).normalize()) < 0.12) return null; tmp.project(G.camera); return [(tmp.x * 0.5 + 0.5) * w, (-tmp.y * 0.5 + 0.5) * h];
+}
+function tapGlobe(cx, cy) {
+  const r = G.cv.getBoundingClientRect(), near = []; for (const p of pins.values()) { const s = screenOf(p, r.width, r.height); if (!s) continue; const d = Math.hypot(s[0] - (cx - r.left), s[1] - (cy - r.top)); if (d < 30) near.push({ p, d }); }
+  if (!near.length) return; near.sort((a, b) => a.d - b.d); let pick = near[0].p; const i = near.findIndex(n => n.p.it.t === selT); if (i >= 0 && near.length > 1) pick = near[(i + 1) % near.length].p;       // tapping a crowded spot again steps through the pins there
+  select(pick.it.t, "tap"); reveal(rows.get(pick.it.t));
+}
+function syncPins() {
+  if (!G) return; const seen = new Set(), spots = new Map();
+  for (const it of items) { if (it.a == null) continue; seen.add(it.t); const key = it.a.toFixed(1) + "," + it.o.toFixed(1), n = spots.get(key) || 0; spots.set(key, n + 1);
+    let p = pins.get(it.t); if (!p) { p = { it, born: clock, pos: V3(0, 0, 0), sig: "", sprite: new THREE.Sprite(new THREE.SpriteMaterial({ map: texFor(it.k), depthWrite: false })) }; G.globe.add(p.sprite); pins.set(it.t, p); }
+    p.it = it; const sig = key + "#" + n + it.k; if (p.sig === sig) continue; p.sig = sig; p.sprite.material.map = texFor(it.k); const d = dirOf(it.a, it.o);
+    if (n) { const east = V3(0, 1, 0).cross(d).normalize(), north = d.clone().cross(east), ang = n * 2.4, rad = 0.04 * Math.sqrt(n); d.addScaledVector(east, Math.cos(ang) * rad).addScaledVector(north, Math.sin(ang) * rad).normalize(); }      // pins at the same place fan out a little
+    p.pos.copy(d).multiplyScalar(1.015); p.sprite.position.copy(p.pos); }
+  for (const [t, p] of pins) if (!seen.has(t)) { G.globe.remove(p.sprite); p.sprite.material.dispose(); pins.delete(t); }
+  kick();
+}
+function syncArcs() {
+  if (!G) return; for (const a of arcs) { G.globe.remove(a.line); a.line.geometry.dispose(); a.line.material.dispose(); } arcs.length = 0;
+  for (const key of links) { const pr = key.split("\n"), A = pins.get(pr[0]), B = pins.get(pr[1]); if (!A || !B) continue; const a = A.pos.clone().normalize(), b = B.pos.clone().normalize(), ang = a.angleTo(b); if (ang < 0.02 || ang > 3.1) continue; const line = [];
+    for (let i = 0; i <= 40; i++) { const t = i / 40; line.push(a.clone().multiplyScalar(Math.sin((1 - t) * ang) / Math.sin(ang)).addScaledVector(b, Math.sin(t * ang) / Math.sin(ang)).multiplyScalar(1.015 + Math.sin(t * Math.PI) * (0.03 + ang * 0.15))); }
+    const obj = new THREE.Line(new THREE.BufferGeometry().setFromPoints(line), new THREE.LineBasicMaterial({ color: 0xffdca0, transparent: true, opacity: 0.2, depthWrite: false })); G.globe.add(obj); arcs.push({ line: obj, x: pr[0], y: pr[1] }); }
+  paintArcs();
+}
+function paintArcs() { for (const a of arcs) a.line.material.opacity = selT ? (a.x === selT || a.y === selT ? 0.95 : 0.07) : 0.22; }
+function focusGlobe() {
+  if (!G) return; const p = pins.get(selT), pe = $("pin"); for (const q of pins.values()) q.sprite.renderOrder = q === p ? 3 : 1;
+  if (p) { const it = p.it, im = pe.querySelector("img"); pe.style.setProperty("--k", KCOL[it.k]); pe.dataset.l = it.t.slice(0, 1);
+    if (im.dataset.t !== it.t + it.i) { im.dataset.t = it.t + it.i; im.style.visibility = it.i ? "" : "hidden"; if (it.i) { im.dataset.full = it.i; im.src = sized(it.i, 120); } else { delete im.dataset.full; im.removeAttribute("src"); } }
+    targetQ = quatFor(p.pos.clone().normalize()); }
+  kick(2200);
+}
+function kick(ms) { if (!G) return; animUntil = Math.max(animUntil, performance.now() + (ms || 1600)); if (!raf) raf = requestAnimationFrame(tick); }
+function tick(now) {
+  raf = 0; const busy = dragging || now < animUntil; if (!busy && !items.length && now - lastDraw < 45) { raf = requestAnimationFrame(tick); return; }      // the slow turn before anything is mentioned runs at a low frame rate
+  stepGlobe(Math.min(0.05, (now - lastFrame) / 1000 || 0.016)); lastFrame = now; lastDraw = now; if (busy || !items.length) raf = requestAnimationFrame(tick);
+}
+function stepGlobe(dt) {
+  if (!G || $("stage").classList.contains("folded")) return; const box = $("globe"), w = box.clientWidth, h = box.clientHeight; if (!w || !h) return;
+  const { renderer, camera, globe, holder, cv } = G, pr = renderer.getPixelRatio(); if (cv.width !== Math.round(w * pr) || cv.height !== Math.round(h * pr)) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  clock += dt; if (!items.length && !dragging) targetQ.multiply(new THREE.Quaternion().setFromAxisAngle(V3(0, 1, 0), dt * 0.09));
+  globe.quaternion.slerp(targetQ, 1 - Math.pow(0.02, dt));
+  const fit = 1 / Math.min(1, camera.aspect * 0.95); camera.position.z = lerp(camera.position.z, clamp((3.3 + userZoom) * fit, 1.7, 6.5), 1 - Math.pow(0.05, dt));
+  holder.position.y = (wide.matches ? 0.04 : 0.11) * camera.position.z / 3;        // on a phone the name of the selected item covers the bottom edge, so the Earth is drawn a little higher holder.updateMatrixWorld(true);
+  const pxPerUnit = h / (2 * Math.tan(camera.fov * Math.PI / 360) * camera.position.z);
+  for (const p of pins.values()) { const age = clock - p.born, grow = clamp(age / 0.5, 0, 1), ease = 1 - Math.pow(1 - grow, 3), sz = (p.it.t === selT ? 20 : 15) / pxPerUnit * (0.3 + 0.7 * ease) * (1 + Math.max(0, 1 - age / 1.1) * 0.9); p.sprite.scale.set(sz, sz, 1); }
+  // the portrait of the selected item rides on its pin
+  const pe = $("pin"), sp = pins.get(selT), at = sp ? screenOf(sp, w, h) : null;
+  if (at) pe.style.transform = "translate(" + at[0].toFixed(1) + "px," + at[1].toFixed(1) + "px) translate(-50%,-50%)"; if (pinShown !== !!at) { pinShown = !!at; pe.hidden = !at; }
+  renderer.render(G.scene, camera);
+}
+$("bFold").onclick = () => { const f = $("stage").classList.toggle("folded"); $("bFold").setAttribute("aria-label", f ? "Show the globe" : "Hide the globe"); store.set("lectureAtlasFold", f ? "1" : "0"); drawTimeline(); kick(); };
+
+/* ============================================================
+   6. The connection
+   ============================================================ */
 function paintStatus() {
   const up = clients.filter(c => c.connected).length, now = Date.now();
   if (libFail) return setStatus("err", "This page could not load fully. Check your connection and reload.");
@@ -246,6 +441,7 @@ function reconnect() { for (const c of clients) { try { c.end(true); } catch (e)
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") { hiddenAt = Date.now(); return; }
   if (window.mqtt && code && hiddenAt && Date.now() - hiddenAt > 20000) reconnect(); else for (const c of clients) hello(c);        // a phone that slept gets fresh connections
+  kick();
 });
 
 /* ---- start ---- */
@@ -256,11 +452,15 @@ code = hashCode();
 if (code.length !== 8) { code = ""; $("enter").hidden = false; setStatus("", "Enter a code"); $("codeBox").focus(); }
 else if (!window.crypto || !crypto.subtle) { setStatus("err", "This page must be opened from an https address."); }
 else {
-  base = "lecture-atlas/1/" + code; $("live").hidden = false; $("codeShow").textContent = pretty(code); render([]);
-  const sc = document.createElement("script"); sc.src = MQTT_JS; sc.onload = () => { connect(); paintStatus(); }; sc.onerror = () => { libFail = true; paintStatus(); }; document.head.appendChild(sc);
-  let tick = 0; setInterval(() => { paintStatus(); if (++tick % 5 === 0) for (const c of clients) hello(c); }, 5000);
+  base = "lecture-atlas/1/" + code; $("live").hidden = false; $("codeShow").textContent = $("codeHint").textContent = pretty(code);
+  if (store.get("lectureAtlasFold") === "1" && !wide.matches) { $("stage").classList.add("folded"); $("bFold").setAttribute("aria-label", "Show the globe"); }
+  render([]); paintCaption(); drawTimeline();
+  loadScript(MQTT_JS).then(() => { connect(); paintStatus(); }, () => { libFail = true; paintStatus(); });
+  loadScript(THREE_JS).then(() => fetch("land.txt").then(r => r.ok ? r.text() : "").catch(() => "")).then(land => initGlobe(String(land || "").trim()), () => { $("stage").classList.add("folded"); $("bFold").hidden = true; });
+  let n = 0; setInterval(() => { paintStatus(); if (++n % 5 === 0) for (const c of clients) hello(c); }, 5000);
 }
-window.__live = { state: () => ({ code, up: clients.filter(c => c.connected).length, n: items.length, live, status: $("status").textContent, titles: items.map(x => x.t) }) };
+window.__live = { state: () => ({ code, up: clients.filter(c => c.connected).length, n: items.length, live, status: $("status").textContent, sel: selT, pins: [...pins.keys()], arcs: arcs.length, dated: tlPts.length, globe: !!G, titles: items.map(x => x.t) }),
+  step: k => { for (let i = 0; i < (k || 1); i++) stepGlobe(0.033); }, select: t => select(t, "tap"), tap: (x, y) => tapGlobe(x, y), where: t => { const p = pins.get(t), b = $("globe"); return p && G ? screenOf(p, b.clientWidth, b.clientHeight) : null; } };
 })();
 </script>
 </body>

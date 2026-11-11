@@ -16,7 +16,11 @@ Open it here: https://romanf88-arch.github.io/lecture-atlas/
 
 1. Press **Share with students**. The page shows a QR code, a link, and an 8-character code.
 2. Students scan the QR code with a phone, or open the link on a laptop and type the code. The student page works in any browser.
-3. The student page shows each thing you mention shortly after it is pinned, with its picture, a short description, and a link to Wikipedia. Students can copy or save the list.
+3. The student page has a small globe and a timeline pinned at the top, and a list below them. Each thing you mention appears in all three shortly after it is pinned, with its picture, a short description, and a link to Wikipedia.
+   - Students can turn the globe, tap a pin, drag along the timeline, or tap a name. Whatever they choose is shown in all three places.
+   - While a student is looking at an older item, new mentions wait, and a "New" button takes them to the latest one.
+   - On a phone, the arrow on the globe hides it to leave more room for the list.
+   - Students can copy or save the list.
 4. The student page has no microphone and does not ask for one.
 5. The computer keeps the same code until you press **New code**, so you can post the link once for a whole course. **Stop sharing** turns it off.
 

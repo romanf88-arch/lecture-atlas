@@ -145,7 +145,7 @@ body.sharing .shelf{bottom:316px}
 <div id="labels"></div>
 <aside class="shelf" id="shelf" hidden><div class="lab">No single place</div></aside>
 <header class="top">
-  <div class="brand"><b>Lecture Atlas</b><span class="ver">v9</span><span class="status" id="status">Ready. Press Start listening and talk, or type a sentence at the bottom right.</span></div>
+  <div class="brand"><b>Lecture Atlas</b><span class="ver">v10</span><span class="status" id="status">Ready. Press Start listening and talk, or type a sentence at the bottom right.</span></div>
   <div class="btns">
     <button class="primary" id="bListen">Start listening</button>
     <button id="bShare" title="Show a code and a link that students can open to follow along on their own screens">Share with students<i id="nStu" hidden>0</i></button>
@@ -391,7 +391,7 @@ async function findLinks(e) {
     const [a, b] = await Promise.all([wp({ action: "query", titles: e.title, prop: "links", pltitles: titles, pllimit: "max", plnamespace: 0 }), wp({ action: "query", titles: titles, prop: "links", pltitles: e.title, pllimit: "max", plnamespace: 0 })]);
     const hit = new Set(); ((a.query && a.query.pages && a.query.pages[0] && a.query.pages[0].links) || []).forEach(l => hit.add(l.title));
     ((b.query && b.query.pages) || []).forEach(pg => { if (pg.links && pg.links.length) hit.add(pg.title); });
-    for (const t of hit) { const o = ents.get(t); if (!o || o === e) continue; const key = [e.title, o.title].sort().join("|"); if (edges.has(key)) continue; edges.add(key); if (pins.has(e.title) && pins.has(o.title)) arc3d(e, o); else wires.push({ a: e, b: o }); }
+    for (const t of hit) { const o = ents.get(t); if (!o || o === e) continue; const key = [e.title, o.title].sort().join("|"); if (edges.has(key)) continue; edges.add(key); shareDirty(); if (pins.has(e.title) && pins.has(o.title)) arc3d(e, o); else wires.push({ a: e, b: o }); }
   } catch (err) {}
 }
 
@@ -754,7 +754,9 @@ async function shareSession(fresh) {
 async function signed(obj) { const sh = share, d = JSON.stringify(obj), sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, sh.priv, new TextEncoder().encode(d)); return JSON.stringify({ k: sh.pub, s: b64u(sig), d }); }
 function shareState() {
   // c: when Clear was last pressed, g: pins removed by hand. Student pages keep what they have already received unless one of these says to drop it, so reloading this page does not empty their lists.
-  return { v: 1, t: Date.now(), live: listening, c: clearStamp, g: [...blocked].slice(-150), items: order.slice(-250).map(e => { const o = { t: e.title, k: e.kind }; if (e.desc) o.d = e.desc; if (e.extract) o.x = e.extract.length > 230 ? e.extract.slice(0, 230).replace(/\s+\S*$/, "") + "…" : e.extract; if (e.thumb) o.i = e.thumb; const w = when(e); if (w) o.w = w;
+  // l: which items are connected, as pairs of positions in the list. Each item also carries its place (a, o) and years (y, z) so student pages can draw their own globe and timeline.
+  const list = order.slice(-250), idx = new Map(list.map((e, i) => [e.title, i])), l = []; for (const k of edges) { const p = k.split("|"), i = idx.get(p[0]), j = idx.get(p[1]); if (i != null && j != null) l.push([i, j]); }
+  return { v: 2, t: Date.now(), live: listening, c: clearStamp, g: [...blocked].slice(-150), l, items: list.map(e => { const o = { t: e.title, k: e.kind }; if (e.desc) o.d = e.desc; if (e.extract) o.x = e.extract.length > 230 ? e.extract.slice(0, 230).replace(/\s+\S*$/, "") + "…" : e.extract; if (e.thumb) o.i = e.thumb; const w = when(e); if (w) o.w = w; if (e.lat != null) { o.a = +e.lat.toFixed(2); o.o = +e.lon.toFixed(2); } if (e.y0 != null) o.y = e.y0; if (e.y1 != null) o.z = e.y1;
     if (e.url !== "https://en.wikipedia.org/wiki/" + encodeURIComponent(e.title.replace(/ /g, "_"))) o.u = e.url; return o; }) };
 }
 function shareDirty() { if (!shareStarted || !share) return; clearTimeout(shareTimer); shareTimer = setTimeout(sharePublish, 600); }
