@@ -1,31 +1,40 @@
 # Lecture Atlas
 
-Talk, and the world keeps up.
-
-Lecture Atlas listens to a talk and pins every person, place, work, and idea you mention onto a 3D Earth, with its picture, its dates on a timeline, and lines to the other things it is connected to. At the end it gives a reading list of everything that was mentioned.
+Lecture Atlas listens to a talk and pins every person, place, work, and idea you mention onto a 3D Earth, with its picture, its dates on a timeline, and lines to the other things it is connected to. Students can follow along on their own phones or laptops, and everyone gets a reading list at the end.
 
 Open it here: https://romanf88-arch.github.io/lecture-atlas/
 
 ## How to use it
 
-1. Open the page in any current browser on a computer with a microphone. Chrome and Edge give the fastest and most accurate listening.
-2. Press **Play sample** to see it work without a microphone.
-3. Press **Start listening** and talk. You can also type a sentence in the box at the bottom right.
-4. Click any portrait or card to open it. Click the × on a card to remove a wrong pin.
-5. **Place names** shows countries and cities. **Names only** stops it pinning general topics.
-6. **Reading list** collects everything mentioned and saves it as a web page.
+1. Open the page in Chrome or Edge on a computer with a microphone. It does not run in other browsers, because it depends on the speech recognition built into those two.
+2. Press **Start listening** and talk. You can also type a sentence in the box at the bottom right.
+3. Click any portrait or card to open it. Click the × on a card to remove a wrong pin.
+4. **Place names** shows countries and cities. **Names only** stops it pinning general topics.
+5. **Reading list** collects everything mentioned and saves it as a web page.
+
+## Sharing with students
+
+1. Press **Share with students**. The page shows a QR code, a link, and an 8-character code.
+2. Students scan the QR code with a phone, or open the link on a laptop and type the code. The student page works in any browser.
+3. The student page shows each thing you mention shortly after it is pinned, with its picture, a short description, and a link to Wikipedia. Students can copy or save the list.
+4. The student page has no microphone and does not ask for one.
+5. The computer keeps the same code until you press **New code**, so you can post the link once for a whole course. **Stop sharing** turns it off.
+
+If you remove a pin or press **Clear**, student pages follow. If you reload the page, students keep the list they already have.
 
 ## What it uses
 
-- In Chrome and Edge, listening uses the browser's built-in speech recognition, which sends audio to the browser maker.
-- In other browsers, such as Brave and Firefox, listening uses the Vosk speech model, which runs inside the page. It downloads once (about 40 MB), keeps the audio on your computer, and is less accurate with unusual names. The model file in `models/` is the Vosk small English model 0.15 from Alpha Cephei (https://alphacephei.com/vosk/models), distributed under the Apache 2.0 license. The page loads it with the vosk-browser library.
+- Listening uses the speech recognition built into Chrome and Edge, which sends audio to the browser maker.
 - Names are looked up on Wikipedia. Dates and places come from Wikidata.
 - Pictures come from Wikipedia and Wikimedia Commons under their own licenses.
 - Country borders come from Natural Earth (public domain).
-- No AI service is called while it runs, and nothing you say is saved by the page.
+- Sharing sends the pinned items (title, description, picture link, and dates) through three free public MQTT relay servers: broker.emqx.io, test.mosquitto.org, and broker.hivemq.com. No audio and no transcript are sent. Each update is signed by the presenter's browser, and student pages ignore anything that is not signed with that key.
+- No AI service is called while it runs, and the page saves nothing you say.
 
 ## Limits
 
 - It needs an internet connection.
 - It pins what Wikipedia has an article for. It can miss names Wikipedia treats as ambiguous, and it sometimes pins an ordinary word.
 - Dates before year 1 are approximate.
+- The relay servers are free public services with no guarantee. They use ports 8084, 8081, and 8884, which some networks block. If the student page says it cannot connect on Wi-Fi, mobile data usually works. Test the student link on the network you plan to use.
+- Anyone who has the code can see the list of pinned items.

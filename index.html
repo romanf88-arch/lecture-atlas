@@ -32,7 +32,6 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
 .status{position:absolute;left:0;top:100%;margin:1px 0 0;width:46vw;font-size:13.5px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .status::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--dim);margin-right:7px;vertical-align:middle}
 .status[data-s="on"]::before{background:#63e6a1;animation:pulse 1.3s infinite}
-.status[data-s="sample"]::before{background:var(--work)}
 .status[data-s="err"]::before{background:var(--event)}
 .status[data-s="err"],.status[data-s="work"]{white-space:normal;width:min(600px,48vw);background:rgba(34,10,6,.92);border:1px solid var(--event);border-radius:9px;padding:7px 11px;line-height:1.35;z-index:6}
 .status[data-s="work"]{background:rgba(9,14,30,.92);border-color:var(--line)}
@@ -80,11 +79,39 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
 .card.was b{font-family:var(--serif);font-size:17px;font-weight:600;display:block;line-height:1.1}
 .card.was span{color:var(--dim);font-size:12.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card.was div{min-width:0}
-.hello{position:fixed;left:16px;top:84px;max-width:min(470px,44vw);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;backdrop-filter:blur(8px)}
-.hello h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,2.8vw,40px);line-height:1.03;margin:0 0 8px}
-.hello p{margin:0 0 12px;line-height:1.45;font-size:15.5px}
-.hello .row{display:flex;gap:9px;flex-wrap:wrap}
-.hello small{display:block;color:var(--dim);margin-top:11px;line-height:1.4;font-size:12.5px}
+.gate{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:24px;background:var(--bg);overflow:auto}
+.gate[hidden]{display:none}
+.gate .in{max-width:640px}
+.gate h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4.4vw,52px);line-height:1.05;margin:0 0 14px}
+.gate p{font-size:18px;line-height:1.5;margin:0 0 14px}
+.gate .row{display:flex;gap:8px;flex-wrap:wrap}
+.gate input{flex:1;min-width:0;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:9px;padding:9px 11px;font:inherit}
+.gate small{display:block;color:var(--dim);font-size:15px;line-height:1.45;margin-top:20px}
+body.gated>:not(.gate){display:none!important}
+.share{position:fixed;inset:0;background:rgba(3,5,12,.97);z-index:12;display:grid;place-items:center;padding:24px;overflow:auto}
+.share[hidden]{display:none}
+.share .in{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,4vw,64px);align-items:center;max-width:1500px}
+.share .qr{width:min(66vh,42vw);aspect-ratio:1;background:#fff;border-radius:14px;overflow:hidden;display:grid;place-items:center;color:#333;font-size:15px;text-align:center}
+.share .qr svg,.join .qr svg{display:block;width:100%;height:100%}
+.share h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,3.6vw,60px);line-height:1.04;margin:0 0 .45em}
+.share p{font-size:clamp(17px,1.7vw,28px);line-height:1.35;margin:0 0 .5em}
+.share .lnk{font-weight:600;color:var(--accent);overflow-wrap:anywhere}
+.share .code{font:600 clamp(44px,6.4vw,104px)/1.05 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.06em;margin:.08em 0 .22em}
+.share .st{font-size:clamp(15px,1.3vw,21px);color:var(--dim)}
+.share .st::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--work);margin-right:8px;vertical-align:middle;animation:pulse 1s infinite}
+.share .st[data-s="on"]::before{background:#63e6a1;animation:none}
+.share .st[data-s="err"]::before{background:var(--event);animation:none}
+.share .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.share small{display:block;color:var(--dim);margin-top:16px;line-height:1.45;font-size:13.5px;max-width:66ch}
+.join{position:fixed;left:14px;bottom:200px;display:grid;grid-template-columns:88px auto;gap:11px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 32px 8px 8px;backdrop-filter:blur(8px);cursor:pointer}
+.join[hidden]{display:none}
+.join:hover{border-color:var(--fg)}
+.join .qr{width:88px;height:88px;background:#fff;border-radius:6px;overflow:hidden}
+.join .lab{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.join b{display:block;font:600 21px/1.25 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.04em}
+.join .n{display:block;font-size:12.5px;color:var(--dim)}
+.join .x{position:absolute;right:4px;top:4px;width:24px;height:24px;padding:0;border-radius:50%;font-size:15px;line-height:1;background:none;border-color:transparent}
+body.sharing .shelf{bottom:316px}
 .bottom{position:fixed;left:0;right:0;bottom:0;padding:26px 16px 12px;background:linear-gradient(to top,rgba(3,5,12,.94) 60%,rgba(3,5,12,0));display:flex;flex-direction:column;gap:8px}
 #tl{width:100%;height:96px;display:block;overflow:visible}
 #tl text{font-family:var(--sans);font-size:12.5px;fill:var(--dim)}
@@ -97,7 +124,7 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
 #words i{color:var(--dim);font-style:normal}
 .said input{width:min(330px,28vw);border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:9px;padding:8px 11px;font:inherit}
 .sheet{position:fixed;inset:0;background:rgba(3,5,12,.96);overflow:auto;padding:22px 16px 60px;z-index:10}
-.sheet[hidden],.hello[hidden]{display:none}
+.sheet[hidden]{display:none}
 .sheet .in{max-width:860px;margin:0 auto}
 .sheet h1{font-family:var(--serif);font-size:34px;margin:0}
 .sheet h2{font-family:var(--serif);font-size:22px;margin:26px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -107,8 +134,9 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
 .sheet .it a{color:var(--fg);font-family:var(--serif);font-size:19px;font-weight:600}
 .sheet .it span{display:block;color:var(--dim);font-size:13.5px}
 .sheet p{color:var(--dim);max-width:60ch;line-height:1.45}
+.sheet .about{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;max-width:74ch}
 @media (max-width:1180px){ .feed{top:112px} .shelf{top:128px} }
-@media (max-width:820px){ .feed{width:44vw;bottom:210px} .hello{max-width:calc(56vw - 24px)} .btns button{padding:6px 9px;font-size:13px} .said input{width:40vw} }
+@media (max-width:820px){ .feed{width:44vw;bottom:210px} .join{display:none} .share .in{grid-template-columns:1fr;justify-items:center;text-align:center} .share .bar{justify-content:center} .btns button{padding:6px 9px;font-size:13px} .said input{width:40vw} }
 </style>
 </head>
 <body>
@@ -117,10 +145,10 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
 <div id="labels"></div>
 <aside class="shelf" id="shelf" hidden><div class="lab">No single place</div></aside>
 <header class="top">
-  <div class="brand"><b>Lecture Atlas</b><span class="ver">v8</span><span class="status" id="status">Ready</span></div>
+  <div class="brand"><b>Lecture Atlas</b><span class="ver">v9</span><span class="status" id="status">Ready. Press Start listening and talk, or type a sentence at the bottom right.</span></div>
   <div class="btns">
     <button class="primary" id="bListen">Start listening</button>
-    <button id="bSample">Play sample</button>
+    <button id="bShare" title="Show a code and a link that students can open to follow along on their own screens">Share with students<i id="nStu" hidden>0</i></button>
     <button id="bList">Reading list<i id="count">0</i></button>
     <button id="bNames" aria-pressed="false" title="Show country borders, country names, and major cities on the globe">Place names</button>
     <button id="bTopics" aria-pressed="true" title="Switch between pinning everything and pinning only named people, places, and works">Names + topics</button>
@@ -130,12 +158,11 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
   </div>
 </header>
 <aside class="feed" id="feed"></aside>
-<div class="hello" id="hello">
-  <h1>Talk, and the world keeps up.</h1>
-  <p>Say anything you would say in a lecture. Each person, place, work, and idea you mention is found, pictured, set down on the Earth where it belongs, and placed in time. Lines join the ones that are connected.</p>
-  <div class="row"><button class="primary" id="bListen2">Start listening</button><button id="bSample2">Play the sample lecture</button></div>
-  <small>In Chrome and Edge, listening uses the browser's own speech recognition, which sends audio to the browser maker. In other browsers, such as Brave and Firefox, it uses a speech model that runs inside this page, so the audio stays on your computer. That model is less accurate with unusual names. Names are looked up on Wikipedia and Wikidata. Nothing is saved. Drag the globe to turn it. Click any portrait or card to open it. Text and pictures come from Wikipedia and Wikimedia Commons under their own licenses. Dates and places come from Wikidata. Borders come from Natural Earth.</small>
-</div>
+<aside class="join" id="join" hidden title="Click to show this large for the room">
+  <div class="qr" id="joinQr"></div>
+  <div><span class="lab">Follow along</span><b id="joinCode"></b><span class="n" id="joinN"></span></div>
+  <button class="x" id="joinX" title="Hide" aria-label="Hide the student code">×</button>
+</aside>
 <footer class="bottom">
   <svg id="tl" aria-label="Timeline of everything mentioned"></svg>
   <div class="said"><span class="lab">Heard<span class="meter" id="meter" hidden title="Sound level at the microphone"><i id="lvl"></i></span></span><div id="words"><span><i>Nothing yet.</i></span></div>
@@ -145,6 +172,25 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
   <div class="bar"><h1 style="flex:1">Reading list</h1><button id="bCopy">Copy as text</button><button id="bSave">Save as a web page</button><button class="primary" id="bClose">Back to the globe</button></div>
   <p>Everything that was mentioned, with a link to read more. Descriptions and pictures come from Wikipedia.</p>
   <div id="sheetBody"></div>
+  <p class="about">About this page. Listening uses the speech recognition built into Chrome and Edge, which sends audio to the browser maker. Names are looked up on Wikipedia and Wikidata. The page saves nothing you say. If you turn on Share with students, the pinned items (title, description, picture link, and dates) are sent through public relay servers so that student pages can show them. No audio and no transcript are sent. Text and pictures come from Wikipedia and Wikimedia Commons under their own licenses. Dates and places come from Wikidata. Borders come from Natural Earth.</p>
+</div></div>
+<div class="share" id="share" hidden><div class="in">
+  <div class="qr" id="shareQr"></div>
+  <div>
+    <h1>Follow along on your own screen</h1>
+    <p>Scan the code with your phone camera.</p>
+    <p>On a laptop, open <span class="lnk" id="shareLink"></span> and type this code:</p>
+    <div class="code" id="shareCode"></div>
+    <div class="st" id="shareSt" data-s="work">Connecting</div>
+    <div class="bar"><button id="bCopyLink">Copy the link</button><button id="bNewLink" title="Make a new code. The old code stops updating.">New code</button><button id="bStopShare">Stop sharing</button><button class="primary" id="bShareClose">Back to the globe</button></div>
+    <small>Students see a list of everything you mention, with Wikipedia links, and it updates as you speak. Their page has no microphone. Only the pinned items are sent, through public relay servers. No audio and no transcript are sent. This computer keeps the same code until you press New code, so you can post the link once for a whole course.</small>
+  </div>
+</div></div>
+<div class="gate" id="gate" hidden><div class="in">
+  <h1>Lecture Atlas is not available in this browser.</h1>
+  <p>Please switch to Chrome or Edge on a computer. Lecture Atlas depends on the speech recognition that is built into those two browsers.</p>
+  <div class="row"><input id="gateUrl" readonly aria-label="Address of this page"><button class="primary" id="gateCopy">Copy the address</button></div>
+  <small>Are you a student? You do not need this page. Scan the code or open the link on your instructor's screen. That page works in any browser.</small>
 </div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -157,6 +203,17 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&am
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
 const KNAME = { person: "Person", place: "Place", work: "Work", event: "Event", idea: "Idea" };
 const KCOL = { person: "#ffb454", place: "#4fd1b5", work: "#b79cff", event: "#ff7a6b", idea: "#6fb1ff" };
+
+/* ---- this page only runs where the browser has a working speech service: Chrome and Edge ---- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition, UA = navigator.userAgent;
+const QS = new URLSearchParams(location.search), DEV = QS.has("dev");                           // ?dev opens the page in any browser for testing; ?gate shows the message below in any browser
+const browserOK = !!SR && /Chrome\//.test(UA) && !navigator.brave && !/Electron|OPR\/|SamsungBrowser|DuckDuckGo|YaBrowser/i.test(UA);
+if ((!browserOK && !DEV) || QS.has("gate")) {
+  document.body.classList.add("gated"); $("gate").hidden = false; $("gateUrl").value = location.href.split("#")[0];
+  $("gateUrl").onfocus = () => $("gateUrl").select();
+  $("gateCopy").onclick = async () => { try { await navigator.clipboard.writeText($("gateUrl").value); $("gateCopy").textContent = "Copied"; } catch (e) { $("gateUrl").focus(); $("gateUrl").select(); $("gateCopy").textContent = "Select and copy it"; } };
+  return;
+}
 
 /* ============================================================
    1. Finding the things worth looking up in a stream of words
@@ -293,8 +350,8 @@ function addEntity(p, surface) {
   const c = p.coordinates && p.coordinates[0];
   const e = { title: p.title, desc: p.description || "", extract: (p.extract || "").replace(/\s+/g, " ").trim(), thumb: p.thumbnail ? p.thumbnail.source : "", url: p.fullurl || ("https://en.wikipedia.org/wiki/" + encodeURIComponent(p.title.replace(/ /g, "_"))),
     qid: p.pageprops && p.pageprops.wikibase_item || "", lat: c ? c.lat : null, lon: c ? c.lon : null, kind: c ? "place" : "idea", y0: null, y1: null, weight: 1, seg: segId, surface, placed: false, enriched: false, t: performance.now() };
-  ents.set(e.title, e); order.push(e); $("count").textContent = order.length; $("hello").hidden = true;
-  showInFeed(e);
+  ents.set(e.title, e); order.push(e); $("count").textContent = order.length;
+  showInFeed(e); shareDirty();
   if (e.qid) { queue.push(e); clearTimeout(enrichTimer); enrichTimer = setTimeout(enrich, 60); } else e.enriched = true;
   setTimeout(() => place(e), 400);                       // lands as soon as its place and dates are known
   return e;
@@ -318,7 +375,7 @@ async function enrich() {
           else if (pointOf(o.maker)) set(pointOf(o.maker), "where the person or group behind it was born or based");
           else if (pointOf(o.named)) set(pointOf(o.named), "at the birthplace of the person it is named after");
           else if (isWork && pointOf(o.origin)) set(pointOf(o.origin), "in its country of origin"); } }
-      refreshCard(e); if (e.placed) { replace3d(e); drawTimeline(); }
+      refreshCard(e); shareDirty(); if (e.placed) { replace3d(e); drawTimeline(); }
     }
   } catch (err) { for (const e of batch) e.enriched = true; }
 }
@@ -364,7 +421,7 @@ async function digest(text, final) {
 }
 let dry = 0;
 function report(found) {
-  if (sampleRun) return; const live = listening ? "Listening. " : "";
+  const live = listening ? "Listening. " : "";
   if (found.length) { dry = 0; setStatus(listening ? "on" : "", live + "Just pinned: " + found.slice(0, 4).join(", ") + (found.length > 4 ? ", and more" : "") + "."); }
   else { dry++; setStatus(listening ? "on" : "", live + (dry >= 2 ? "Heard you, but nothing to pin yet. Name a person, place, book, or idea, such as \"Marie Curie discovered radium in Paris.\"" : "Heard you. Nothing to pin in that sentence.")); }
 }
@@ -491,7 +548,7 @@ function put3d(e) {
   focusOn(e, false);
 }
 function removeEntity(e) {
-  blocked.add(e.title); ents.delete(e.title); const i = order.indexOf(e); if (i >= 0) order.splice(i, 1); queue = queue.filter(x => x !== e);
+  shareDirty(); blocked.add(e.title); ents.delete(e.title); const i = order.indexOf(e); if (i >= 0) order.splice(i, 1); queue = queue.filter(x => x !== e);
   const p = pins.get(e.title); if (p) { globe.remove(p.grp); p.lbl.remove(); pins.delete(e.title); }
   const sh = shelf.get(e.title); if (sh) { sh.el.remove(); shelf.delete(e.title); } if (e.dots) globe.remove(e.dots); dropWires(e); if (sel === e) select(null, false);
   for (let k = arcs.length - 1; k >= 0; k--) if (arcs[k].a === e || arcs[k].b === e) { globe.remove(arcs[k].mesh); globe.remove(arcs[k].bead); edges.delete([arcs[k].a.title, arcs[k].b.title].sort().join("|")); arcs.splice(k, 1); }
@@ -587,12 +644,10 @@ $("tl").addEventListener("click", ev => { const t = ev.target && ev.target.datas
 addEventListener("resize", drawTimeline);
 
 /* ============================================================
-   7. Listening, typing, and the sample
+   7. Listening and typing
    ============================================================ */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = null, listening = false, sampleRun = 0, heardAny = false, nagTimer = 0;
+let rec = null, listening = false, heardAny = false, nagTimer = 0;
 function setStatus(s, text) { $("status").dataset.s = s; $("status").textContent = text; }
-const UA = navigator.userAgent, isBrave = !!navigator.brave, inApp = /Electron/i.test(UA), isChromium = /Chrome\//.test(UA) && !isBrave && !inApp;
-let engine = (!SR || isBrave || inApp || location.hash === "#local") ? "local" : "native";      // Brave and Firefox have no speech service behind the feature
 let micStream = null, analyser = null, micBuf = null, micLabel = "", micNode = null, soundTime = 0, quietTime = 0, warned = false, netErrors = 0;
 
 async function ensureMic() {
@@ -602,7 +657,7 @@ async function ensureMic() {
   micLabel = (micStream.getAudioTracks()[0] || {}).label || "";
   audioInit(); if (AC) { try { if (AC.state === "suspended") await AC.resume(); micNode = AC.createMediaStreamSource(micStream); analyser = AC.createAnalyser(); analyser.fftSize = 1024; micNode.connect(analyser); micBuf = new Float32Array(analyser.fftSize); $("meter").hidden = false; } catch (e) { analyser = null; } }
 }
-function releaseMic() { try { if (proc) { proc.disconnect(); proc.onaudioprocess = null; proc = null; } if (micNode) micNode.disconnect(); } catch (e) {} if (micStream) for (const t of micStream.getTracks()) t.stop(); micStream = null; analyser = null; micNode = null; $("meter").hidden = true; }
+function releaseMic() { try { if (micNode) micNode.disconnect(); } catch (e) {} if (micStream) for (const t of micStream.getTracks()) t.stop(); micStream = null; analyser = null; micNode = null; $("meter").hidden = true; }
 function micProblem(e) { const n = e && e.name;
   return n === "NotAllowedError" || n === "SecurityError" ? "The microphone is blocked for this address. Click the icon at the left end of the address bar, set Microphone to Allow, and reload. You can also type in the box at the bottom right."
     : n === "NotFoundError" ? "No microphone was found on this computer. You can type in the box at the bottom right."
@@ -614,74 +669,36 @@ function watchMic(dt) {
   if (!analyser || !listening) return; analyser.getFloatTimeDomainData(micBuf); let sum = 0; for (let i = 0; i < micBuf.length; i++) sum += micBuf[i] * micBuf[i]; const rms = Math.sqrt(sum / micBuf.length);
   $("lvl").style.width = Math.min(100, Math.round(rms * 900)) + "%";
   if (rms > 0.02) { soundTime += dt; quietTime = 0; } else quietTime += dt;
-  if (engine === "native" && !warned && !heardAny && soundTime > 5) { warned = true; switchToLocal("The microphone hears you, but this browser is returning no words."); }
+  if (!warned && !heardAny && soundTime > 6) { warned = true; setStatus("err", "The microphone hears you, but the browser is returning no words. Reload the page, and make sure it is open in Chrome or Edge. You can also type in the box at the bottom right."); }
   if (!warned && soundTime < 0.3 && quietTime > 12) { warned = true; setStatus("err", "The microphone" + (micLabel ? " (" + micLabel + ")" : "") + " is silent. Check that it is not muted, and that the browser is using the right microphone for this address."); }
 }
 
-/* ---- the browser's own speech recognition (Chrome, Edge, Safari) ---- */
-function startNative() {
+/* ---- the browser's own speech recognition ---- */
+function startRec() {
   if (!rec) { rec = new SR(); rec.continuous = true; rec.interimResults = true; rec.lang = "en-US";
-    rec.onresult = ev => { let inter = ""; if (!heardAny) setStatus("on", "Listening. I can hear you."); heardAny = true; netErrors = 0; for (let i = ev.resultIndex; i < ev.results.length; i++) { const r = ev.results[i]; if (r.isFinal) heardFinal(r[0].transcript); else inter += r[0].transcript; } if (inter) heardInterim(inter.trim()); else { interim = ""; paintWords(); } };
+    rec.onresult = ev => { let inter = ""; if (!heardAny || warned) setStatus("on", "Listening. I can hear you."); heardAny = true; netErrors = 0; for (let i = ev.resultIndex; i < ev.results.length; i++) { const r = ev.results[i]; if (r.isFinal) heardFinal(r[0].transcript); else inter += r[0].transcript; } if (inter) heardInterim(inter.trim()); else { interim = ""; paintWords(); } };
     rec.onerror = ev => { const c = ev.error; if (c === "no-speech" || c === "aborted") return;
-      if (c === "not-allowed" || c === "service-not-allowed") { if (engine === "native" && micStream) { switchToLocal("This browser will not run its speech recognition here."); return; } listening = false; setStatus("err", micProblem({ name: "NotAllowedError" })); setBtn(); }
-      else if (c === "audio-capture") { listening = false; setStatus("err", micProblem({ name: "NotFoundError" })); setBtn(); }
-      else if (c === "network" || c === "language-not-supported") { if (++netErrors >= 2 || !isChromium) switchToLocal("This browser could not reach a speech service."); }
+      if (c === "not-allowed" || c === "service-not-allowed") { listening = false; releaseMic(); setStatus("err", micProblem({ name: "NotAllowedError" })); setBtn(); shareDirty(); }
+      else if (c === "audio-capture") { listening = false; releaseMic(); setStatus("err", micProblem({ name: "NotFoundError" })); setBtn(); shareDirty(); }
+      else if (c === "network") { if (++netErrors >= 2) setStatus("err", "The browser could not reach its speech service. Check the internet connection. Listening will keep trying. You can also type in the box at the bottom right."); }
       else setStatus("err", "Speech recognition reported a problem: " + c + "."); };
-    rec.onend = () => { if (listening && engine === "native") setTimeout(() => { try { rec.start(); } catch (e) {} }, 250); }; }
+    rec.onend = () => { if (listening) setTimeout(() => { try { rec.start(); } catch (e) {} }, 250); }; }
   try { rec.start(); } catch (e) {}
   setStatus("on", "Listening" + (micLabel ? " on " + micLabel : "") + ".");
-  clearTimeout(nagTimer); nagTimer = setTimeout(() => { if (listening && engine === "native" && !heardAny && !warned) setStatus("on", "Listening, but no words yet. Say a full sentence."); }, 9000);
-}
-function switchToLocal(why) { if (engine === "local") return; engine = "local"; try { rec && rec.abort(); } catch (e) {} setStatus("work", why + " Switching to the speech model built into this page."); if (listening) startLocal(); }
-
-/* ---- the built-in speech model (Vosk): runs inside the page, so it works in any browser ---- */
-const VOSK_JS = "https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js", VOSK_MODEL = new URL("models/vosk-model-small-en-us-0.15.tar.gz", location.href).href   /* our own copy of the Vosk small English model (Apache 2.0) */;
-let vModel = null, vRec = null, vLoading = null, vRate = 0, proc = null;
-function loadLocal() {
-  if (vLoading) return vLoading;
-  setStatus("work", "Getting the speech model for this browser. This happens once (about 40 MB) and can take half a minute.");
-  vLoading = new Promise((ok, no) => { if (window.Vosk) return ok(); const sc = document.createElement("script"); sc.src = VOSK_JS; sc.onload = () => ok(); sc.onerror = () => no(new Error("script")); document.head.appendChild(sc); })
-    .then(() => window.Vosk.createModel(VOSK_MODEL)).then(m => { vModel = m; });
-  vLoading.catch(() => { vLoading = null; });
-  return vLoading;
-}
-function makeRecognizer(rate) {
-  if (vRec && vRate === rate) return; try { vRec && vRec.remove(); } catch (e) {} vRate = rate; vRec = new vModel.KaldiRecognizer(rate);
-  vRec.on("result", m => { const t = m && m.result && m.result.text; interim = ""; if (t && t.trim()) { heardAny = true; heardFinal(t.trim()); } else paintWords(); });
-  vRec.on("partialresult", m => { const p = m && m.result && m.result.partial; if (p && p.trim()) { if (!heardAny) setStatus("on", "Listening with the speech model built into this page. I can hear you."); heardAny = true; heardInterim(p.trim()); } });
-}
-async function startLocal() {
-  if (!AC) { listening = false; setBtn(); setStatus("err", "This browser could not start audio, so the built-in speech model cannot listen. You can type in the box at the bottom right."); return; }
-  try { await loadLocal(); } catch (e) { listening = false; setBtn(); releaseMic(); setStatus("err", "The built-in speech model could not be downloaded. Check the internet connection and try again, open this address in Chrome or Edge, or type in the box at the bottom right."); return; }
-  if (!listening) return;
-  makeRecognizer(AC.sampleRate);
-  if (!proc && micNode) { proc = AC.createScriptProcessor(4096, 1, 1); const mute = AC.createGain(); mute.gain.value = 0; micNode.connect(proc); proc.connect(mute); mute.connect(AC.destination);
-    proc.onaudioprocess = ev => { if (listening && engine === "local" && vRec) { try { vRec.acceptWaveformFloat(new Float32Array(ev.inputBuffer.getChannelData(0)), AC.sampleRate); } catch (e) {} } }; }
-  setStatus("on", "Listening with the speech model built into this page" + (micLabel ? ", on " + micLabel : "") + ".");
+  clearTimeout(nagTimer); nagTimer = setTimeout(() => { if (listening && !heardAny && !warned) setStatus("on", "Listening, but no words yet. Say a full sentence."); }, 9000);
 }
 
 async function startListening() {
-  audioInit(); stopSample(); $("hello").hidden = true; warned = false; soundTime = 0; quietTime = 0; heardAny = false; netErrors = 0;
+  audioInit(); warned = false; soundTime = 0; quietTime = 0; heardAny = false; netErrors = 0;
   setStatus("work", "Asking for the microphone. If the browser shows a question near the address bar, choose Allow.");
   try { await ensureMic(); } catch (e) { listening = false; setBtn(); setStatus("err", micProblem(e)); return; }
-  listening = true; setBtn();
-  if (engine === "native") startNative(); else startLocal();
+  listening = true; setBtn(); startRec();
+  if (shareOn) { joinHidden = false; shareStart(); } shareDirty();
 }
-function stopListening() { listening = false; try { rec && rec.stop(); } catch (e) {} try { vRec && vRec.retrieveFinalResult(); } catch (e) {} releaseMic(); interim = ""; paintWords(); setStatus("", "Paused"); setBtn(); }
+function stopListening() { listening = false; try { rec && rec.stop(); } catch (e) {} releaseMic(); interim = ""; paintWords(); setStatus("", "Paused"); setBtn(); shareDirty(); }
 function setBtn() { $("bListen").textContent = listening ? "Pause listening" : "Start listening"; }
-$("bListen").onclick = () => listening ? stopListening() : startListening(); $("bListen2").onclick = startListening;
-$("typeForm").addEventListener("submit", ev => { ev.preventDefault(); audioInit(); const v = $("typeBox").value; $("typeBox").value = ""; $("hello").hidden = true; heardFinal(v); });
-const SAMPLE = "Let me start in Athens, around 387 BC, when Plato opens the Platonic Academy. His student Aristotle later starts a school of his own. Jump ahead to 1088 and the University of Bologna, the oldest university still running. Then to Mainz, where Johannes Gutenberg builds the printing press. In 1810 Wilhelm von Humboldt founds the University of Berlin and ties teaching to research. In 1916 John Dewey publishes Democracy and Education and argues that students learn by doing. Then the machines arrive. In 1950 Alan Turing asks whether a machine can think and proposes the Turing test. Joseph Weizenbaum writes ELIZA at MIT in 1966 and is disturbed by how quickly people confide in it. In November 2022 OpenAI releases ChatGPT, and we are back in the argument Socrates started, when he worried that writing would weaken memory.";
-function stopSample() { if (sampleRun) { sampleRun = 0; setStatus("", "Ready"); } }
-async function playSample() {
-  audioInit();
-  if (listening) stopListening(); $("hello").hidden = true; const run = sampleRun = Date.now(); setStatus("sample", "Sample lecture");
-  for (const sentence of SAMPLE.match(/[^.]+\./g)) { const wsx = sentence.trim().split(" "); let cur = "";
-    for (const w of wsx) { if (sampleRun !== run) return; cur += (cur ? " " : "") + w; heardInterim(cur); await new Promise(r => setTimeout(r, 185)); }
-    if (sampleRun !== run) return; heardFinal(cur); await new Promise(r => setTimeout(r, 900)); }
-  if (sampleRun === run) { sampleRun = 0; setStatus("", "End of the sample. Start listening to map your own words."); }
-}
-$("bSample").onclick = playSample; $("bSample2").onclick = playSample;
+$("bListen").onclick = () => listening ? stopListening() : startListening();
+$("typeForm").addEventListener("submit", ev => { ev.preventDefault(); audioInit(); const v = $("typeBox").value; $("typeBox").value = ""; heardFinal(v); });
 $("bFull").onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
 $("bSound").onclick = () => { soundOn = !soundOn; $("bSound").textContent = soundOn ? "Sound on" : "Sound off"; $("bSound").setAttribute("aria-pressed", String(soundOn)); };
 $("bTopics").onclick = () => { topics = !topics; $("bTopics").textContent = topics ? "Names + topics" : "Names only"; $("bTopics").setAttribute("aria-pressed", String(topics)); cache.clear(); };
@@ -692,9 +709,9 @@ $("bNames").onclick = () => {
   if (!namesOn) for (const g of geoLabels) { g.el.style.opacity = "0"; g.on = false; }
 };
 let clearArmed = 0;
-$("bClear").onclick = () => { if (order.length && Date.now() - clearArmed > 3500) { clearArmed = Date.now(); $("bClear").textContent = "Click again to clear"; setTimeout(() => { $("bClear").textContent = "Clear"; }, 3500); return; } $("bClear").textContent = "Clear"; stopSample();
+$("bClear").onclick = () => { if (order.length && Date.now() - clearArmed > 3500) { clearArmed = Date.now(); $("bClear").textContent = "Click again to clear"; setTimeout(() => { $("bClear").textContent = "Clear"; }, 3500); return; } $("bClear").textContent = "Clear";
   for (const p of pins.values()) { globe.remove(p.grp); p.lbl.remove(); } pins.clear(); for (const a of arcs) { globe.remove(a.mesh); globe.remove(a.bead); } arcs.length = 0; for (const x of shelf.values()) { x.el.remove(); if (x.e.dots) globe.remove(x.e.dots); } shelf.clear(); wires.length = 0; $("shelf").hidden = true; select(null, false);
-  ents.clear(); order.length = 0; edges.clear(); blocked.clear(); spokenYears.clear(); queue = []; transcript = interim = ""; hits = []; $("feed").innerHTML = ""; $("count").textContent = "0"; paintWords(); drawTimeline(); zoomTarget = 3.3; };
+  ents.clear(); order.length = 0; edges.clear(); blocked.clear(); spokenYears.clear(); queue = []; transcript = interim = ""; hits = []; $("feed").innerHTML = ""; $("count").textContent = "0"; paintWords(); drawTimeline(); zoomTarget = 3.3; clearStamp = Date.now(); shareDirty(); };
 
 /* ---- reading list ---- */
 function listHTML() { const groups = [["person", "People"], ["place", "Places and institutions"], ["work", "Works"], ["event", "Events"], ["idea", "Ideas and things"]]; let h = "";
@@ -705,13 +722,102 @@ $("bCopy").onclick = async () => { const t = order.map(e => e.title + (when(e) ?
 $("bSave").onclick = () => { const css = "body{font-family:Georgia,serif;max-width:820px;margin:32px auto;padding:0 16px;color:#1a1a1a}h1{font-size:30px}h2{font-size:21px;border-bottom:1px solid #ccc;margin-top:28px}.it{display:grid;grid-template-columns:54px 1fr;gap:12px;padding:8px 0;align-items:center}.pic{width:54px;height:54px;border-radius:50%;background:#ddd center 22%/cover}a{font-size:19px;font-weight:bold;color:#123}span{display:block;color:#555;font:14px sans-serif}p{font:14px sans-serif;color:#555}";
   const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reading list</title><style>' + css + "</style></head><body><h1>Reading list</h1><p>Everything mentioned in the session, with links. Descriptions and pictures come from Wikipedia.</p>" + listHTML() + "</body></html>";
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([html], { type: "text/html" })); a.download = "reading-list.html"; document.body.appendChild(a); a.click(); a.remove(); };
-document.addEventListener("keydown", ev => { if (ev.target.matches("input")) return; if (ev.key === "Escape") $("sheet").hidden = true; else if (ev.key === "f" || ev.key === "F") $("bFull").click(); });
+document.addEventListener("keydown", ev => { if (ev.target.matches("input")) return; if (ev.key === "Escape") { $("sheet").hidden = true; $("share").hidden = true; } else if (ev.key === "f" || ev.key === "F") $("bFull").click(); });
 
 /* ---- start ---- */
-if (engine === "local") setStatus("", "Ready. This browser will use the speech model built into the page.");
+/* ============================================================
+   8. The student link
+   Students open live.html with a code. This page sends the list of pinned items (never audio, never the
+   transcript) through public MQTT relays, and student pages show it. Each message is signed with a key that
+   stays in this browser. The code is a short hash of the public half of that key, so a student page can
+   tell this page's messages from anything someone else sends to the same relay.
+   ============================================================ */
+const RELAYS = ["wss://broker.emqx.io:8084/mqtt", "wss://test.mosquitto.org:8081", "wss://broker.hivemq.com:8884/mqtt"];
+const MQTT_JS = "https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js", QR_JS = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
+const B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ", EC = { name: "ECDSA", namedCurve: "P-256" }, SHARE_KEY = "lectureAtlasShareKey", SHARE_ON = "lectureAtlasShareOn";
+const b64u = buf => btoa(String.fromCharCode.apply(null, new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} } };
+const loadScript = src => new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = src; sc.onload = ok; sc.onerror = () => no(new Error("script")); document.head.appendChild(sc); });
+let share = null, shareOn = store.get(SHARE_ON) === "1", shareStarted = false, shareClients = [], shareTimer = 0, sharePayload = "", shareFail = "", joinHidden = false, beatTimer = 0, clearStamp = 0;
+const students = new Map();
+async function codeOf(rawKey) { const h = new Uint8Array(await crypto.subtle.digest("SHA-256", rawKey)); let out = "", acc = 0, bits = 0; for (let i = 0; i < 5; i++) { acc = (acc << 8) | h[i]; bits += 8; while (bits >= 5) { out += B32[(acc >> (bits - 5)) & 31]; bits -= 5; } acc &= (1 << bits) - 1; } return out; }
+const pretty = c => c.slice(0, 4) + "-" + c.slice(4);
+const topic = part => "lecture-atlas/1/" + share.code + "/" + part;
+function studentBase() { const u = new URL("live.html", location.href); u.search = ""; u.hash = ""; return u; }
+async function shareSession(fresh) {
+  if (share && !fresh) return share;
+  let priv = null, rawPub = null;
+  if (!fresh) { try { const jwk = JSON.parse(store.get(SHARE_KEY) || "null"); if (jwk && jwk.d) { priv = await crypto.subtle.importKey("jwk", jwk, EC, false, ["sign"]); rawPub = await crypto.subtle.exportKey("raw", await crypto.subtle.importKey("jwk", { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y }, EC, true, ["verify"])); } } catch (e) { priv = null; } }
+  if (!priv) { const kp = await crypto.subtle.generateKey(EC, true, ["sign", "verify"]); priv = kp.privateKey; rawPub = await crypto.subtle.exportKey("raw", kp.publicKey); store.set(SHARE_KEY, JSON.stringify(await crypto.subtle.exportKey("jwk", kp.privateKey))); }
+  share = { priv, pub: b64u(rawPub), code: await codeOf(rawPub) }; return share;
+}
+async function signed(obj) { const sh = share, d = JSON.stringify(obj), sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, sh.priv, new TextEncoder().encode(d)); return JSON.stringify({ k: sh.pub, s: b64u(sig), d }); }
+function shareState() {
+  // c: when Clear was last pressed, g: pins removed by hand. Student pages keep what they have already received unless one of these says to drop it, so reloading this page does not empty their lists.
+  return { v: 1, t: Date.now(), live: listening, c: clearStamp, g: [...blocked].slice(-150), items: order.slice(-250).map(e => { const o = { t: e.title, k: e.kind }; if (e.desc) o.d = e.desc; if (e.extract) o.x = e.extract.length > 230 ? e.extract.slice(0, 230).replace(/\s+\S*$/, "") + "…" : e.extract; if (e.thumb) o.i = e.thumb; const w = when(e); if (w) o.w = w;
+    if (e.url !== "https://en.wikipedia.org/wiki/" + encodeURIComponent(e.title.replace(/ /g, "_"))) o.u = e.url; return o; }) };
+}
+function shareDirty() { if (!shareStarted || !share) return; clearTimeout(shareTimer); shareTimer = setTimeout(sharePublish, 600); }
+async function sharePublish() {
+  if (!shareStarted || !share) return; const code = share.code; let msg; try { msg = await signed(shareState()); } catch (e) { return; }
+  if (!shareStarted || !share || share.code !== code) return; sharePayload = msg;
+  for (const c of shareClients) if (c.connected) c.publish(topic("s"), msg, { qos: 1, retain: true });
+}
+function connectRelays() {
+  for (const url of RELAYS) { let c; try { c = window.mqtt.connect(url, { clientId: "la" + Math.random().toString(36).slice(2, 12), clean: true, keepalive: 30, reconnectPeriod: 5000, connectTimeout: 15000 }); } catch (e) { continue; }
+    c.on("connect", () => { if (!share) return; c.subscribe(topic("p")); if (sharePayload) c.publish(topic("s"), sharePayload, { qos: 1, retain: true }); else shareDirty(); paintShare(); });
+    c.on("close", paintShare); c.on("error", () => {});
+    c.on("message", (tp, payload) => { if (!share || tp !== topic("p")) return; const id = new TextDecoder().decode(payload).slice(0, 24); if (id) { students.set(id, Date.now()); paintShare(); } });
+    shareClients.push(c); }
+}
+async function shareStart() {
+  if (shareStarted) { paintShare(); return; } shareStarted = true; shareFail = "";
+  if (!window.crypto || !crypto.subtle) { shareFail = "The student link needs a secure address (https, or localhost)."; paintShare(); return; }
+  try { await shareSession(false); } catch (e) { shareFail = "This browser could not make a code for the student link."; paintShare(); return; }
+  paintShare();
+  loadScript(QR_JS).then(paintShare, paintShare);
+  try { if (!window.mqtt) await loadScript(MQTT_JS); } catch (e) { shareFail = "Could not load the part of the page that sends updates. Check the internet connection and reload."; paintShare(); return; }
+  if (!shareStarted) return;
+  connectRelays(); shareDirty();
+  clearInterval(beatTimer); beatTimer = setInterval(async () => { paintShare(); if (!share || !shareClients.some(c => c.connected)) return; let m; try { m = await signed({ t: Date.now(), live: listening }); } catch (e) { return; } for (const c of shareClients) if (c.connected) c.publish(topic("b"), m); }, 20000);
+}
+function shareStop() {
+  for (const c of shareClients) { try { if (c.connected && share) c.publish(topic("s"), "", { qos: 1, retain: true }); c.end(); } catch (e) {} }
+  shareClients = []; clearInterval(beatTimer); clearTimeout(shareTimer); shareStarted = false; sharePayload = ""; students.clear(); shareOn = false; store.set(SHARE_ON, null); $("share").hidden = true; paintShare();
+}
+function qrSVG(text) {
+  if (!window.qrcode) return ""; let q; try { q = window.qrcode(0, "M"); q.addData(text); q.make(); } catch (e) { return ""; }
+  const m = q.getModuleCount(), pad = 4, size = m + pad * 2; let d = ""; for (let r = 0; r < m; r++) for (let c = 0; c < m; c++) if (q.isDark(r, c)) d += "M" + (c + pad) + " " + (r + pad) + "h1v1h-1z";
+  return '<svg viewBox="0 0 ' + size + " " + size + '" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="QR code for the student page"><rect width="' + size + '" height="' + size + '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+}
+let qrFor = "";
+function paintShare() {
+  const up = shareClients.filter(c => c.connected).length, now = Date.now(); let nStu = 0; for (const [id, t] of students) { if (now - t > 70000) students.delete(id); else nStu++; }
+  const following = nStu === 1 ? "1 student following" : nStu + " students following";
+  $("nStu").hidden = !(shareStarted && nStu); $("nStu").textContent = nStu; $("bShare").setAttribute("aria-pressed", String(shareStarted));
+  const showJoin = shareStarted && !!share && !joinHidden; $("join").hidden = !showJoin; document.body.classList.toggle("sharing", showJoin);
+  if (!share) { $("shareSt").dataset.s = shareFail ? "err" : "work"; $("shareSt").textContent = shareFail || "Making a code"; return; }
+  const base = studentBase(), link = base.href + "#" + pretty(share.code);
+  $("shareLink").textContent = base.host + base.pathname; $("shareCode").textContent = pretty(share.code); $("joinCode").textContent = pretty(share.code);
+  if (qrFor !== link) { const svg = qrSVG(link); if (svg) { qrFor = link; $("shareQr").innerHTML = svg; $("joinQr").innerHTML = svg; } else { $("shareQr").textContent = "The picture code could not be drawn. Use the link and the code."; $("joinQr").textContent = ""; } }
+  const st = shareFail ? ["err", shareFail] : !shareStarted ? ["err", "Sharing is off."] : up ? ["on", "Sharing is on. " + following + "." + (/^(localhost|127\.|\[::1\])/.test(location.hostname) ? " This copy runs only on this computer, so the link will not open on other devices. Use the public site for a class." : "")] : ["work", "Connecting"];
+  $("shareSt").dataset.s = st[0]; $("shareSt").textContent = st[1]; $("joinN").textContent = up ? following : "Connecting";
+}
+$("bShare").onclick = () => { if (!shareOn) { shareOn = true; store.set(SHARE_ON, "1"); } joinHidden = false; shareStart(); $("share").hidden = false; paintShare(); };
+$("bShareClose").onclick = () => { $("share").hidden = true; };
+$("join").onclick = ev => { if (ev.target.closest(".x")) { joinHidden = true; paintShare(); return; } $("share").hidden = false; paintShare(); };
+$("bStopShare").onclick = shareStop;
+$("bCopyLink").onclick = async () => { if (!share) return; try { await navigator.clipboard.writeText(studentBase().href + "#" + pretty(share.code)); $("bCopyLink").textContent = "Copied"; } catch (e) { $("bCopyLink").textContent = "Could not copy"; } setTimeout(() => { $("bCopyLink").textContent = "Copy the link"; }, 1800); };
+let newArmed = 0;
+$("bNewLink").onclick = async () => {
+  if (!share) return; if (Date.now() - newArmed > 3500) { newArmed = Date.now(); $("bNewLink").textContent = "Click again for a new code"; setTimeout(() => { $("bNewLink").textContent = "New code"; }, 3500); return; } $("bNewLink").textContent = "New code"; newArmed = 0;
+  const oldS = topic("s"), oldP = topic("p"); for (const c of shareClients) if (c.connected) { c.publish(oldS, "", { qos: 1, retain: true }); c.unsubscribe(oldP); }
+  students.clear(); sharePayload = ""; try { await shareSession(true); } catch (e) { return; }
+  for (const c of shareClients) if (c.connected) c.subscribe(topic("p")); paintShare(); sharePublish();
+};
+if (shareOn) shareStart();
 fetch("land.txt").then(r => r.ok ? r.text() : "").catch(() => "").then(land => { init3d(land.trim()); if (!has3d) setStatus("err", "This browser could not start 3D graphics."); drawTimeline(); requestAnimationFrame(frame); });
-window.__atlas = { engine: () => engine,
-  testAudio: async (url, from, to) => { engine = "local"; listening = true; await loadLocal(); makeRecognizer(16000); const buf = await (await fetch(url)).arrayBuffer(); const off = new OfflineAudioContext(1, 16000, 16000), audio = await off.decodeAudioData(buf); const ch = audio.getChannelData(0), a = Math.floor((from || 0) * 16000), b = Math.min(ch.length, Math.floor((to || 40) * 16000)); for (let i = a; i + 4096 <= b; i += 4096) vRec.acceptWaveformFloat(ch.slice(i, i + 4096), 16000); vRec.acceptWaveformFloat(new Float32Array(16000), 16000); return { secs: (b - a) / 16000 }; }, select: t => { const e = ents.get(t); if (e) { focusOn(e, true); showInFeedAgain(e); } return !!e; }, shelf: () => [...shelf.keys()], wires: () => wires.map(x => x.a.title + " ~ " + x.b.title), clickFirstPin: skip => { const p = [...pins.values()].find(x => x.vis && x.e.title !== skip); if (!p) return null; const v = p.top.clone().applyMatrix4(globe.matrixWorld).project(camera), r = renderer.domElement.getBoundingClientRect(); return { title: p.e.title, x: r.left + (v.x * 0.5 + 0.5) * r.width, y: r.top + (-v.y * 0.5 + 0.5) * r.height }; }, feed: heardFinal, partial: heardInterim, step: n => { for (let i = 0; i < n; i++) step(0.033); }, playSample, state: () => ({ n: order.length, placed: order.filter(e => e.placed).length, arcs: arcs.length, rank: RANK ? RANK.size : 0, ents: order.map(e => e.title + " [" + e.kind + (e.lat != null ? " " + e.lat.toFixed(1) + "," + e.lon.toFixed(1) : "") + (e.y0 != null ? " " + e.y0 : "") + "]") }) };
+window.__atlas = { select: t => { const e = ents.get(t); if (e) { focusOn(e, true); showInFeedAgain(e); } return !!e; }, shelf: () => [...shelf.keys()], wires: () => wires.map(x => x.a.title + " ~ " + x.b.title), clickFirstPin: skip => { const p = [...pins.values()].find(x => x.vis && x.e.title !== skip); if (!p) return null; const v = p.top.clone().applyMatrix4(globe.matrixWorld).project(camera), r = renderer.domElement.getBoundingClientRect(); return { title: p.e.title, x: r.left + (v.x * 0.5 + 0.5) * r.width, y: r.top + (-v.y * 0.5 + 0.5) * r.height }; }, feed: heardFinal, partial: heardInterim, step: n => { for (let i = 0; i < n; i++) step(0.033); }, share: () => ({ on: shareOn, started: shareStarted, code: share && share.code, link: share && (studentBase().href + "#" + pretty(share.code)), up: shareClients.filter(c => c.connected).length, students: students.size, bytes: sharePayload.length, fail: shareFail }), fakeLive: v => { listening = !!v; setBtn(); shareDirty(); }, state: () => ({ n: order.length, placed: order.filter(e => e.placed).length, arcs: arcs.length, rank: RANK ? RANK.size : 0, ents: order.map(e => e.title + " [" + e.kind + (e.lat != null ? " " + e.lat.toFixed(1) + "," + e.lon.toFixed(1) : "") + (e.y0 != null ? " " + e.y0 : "") + "]") }) };
 })();
 </script>
 </body>
