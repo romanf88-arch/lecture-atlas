@@ -8,7 +8,7 @@ Open it here: https://romanf88-arch.github.io/lecture-atlas/
 
 ## How to use it
 
-1. Open the page in Chrome or Edge on a computer with a microphone.
+1. Open the page in any current browser on a computer with a microphone. Chrome and Edge give the fastest and most accurate listening.
 2. Press **Play sample** to see it work without a microphone.
 3. Press **Start listening** and talk. You can also type a sentence in the box at the bottom right.
 4. Click any portrait or card to open it. Click the × on a card to remove a wrong pin.
@@ -17,7 +17,8 @@ Open it here: https://romanf88-arch.github.io/lecture-atlas/
 
 ## What it uses
 
-- Listening uses the browser's built-in speech recognition, which sends audio to the browser maker.
+- In Chrome and Edge, listening uses the browser's built-in speech recognition, which sends audio to the browser maker.
+- In other browsers, such as Brave and Firefox, listening uses the Vosk speech model, which runs inside the page. It downloads once (about 40 MB), keeps the audio on your computer, and is less accurate with unusual names.
 - Names are looked up on Wikipedia. Dates and places come from Wikidata.
 - Pictures come from Wikipedia and Wikimedia Commons under their own licenses.
 - Country borders come from Natural Earth (public domain).
