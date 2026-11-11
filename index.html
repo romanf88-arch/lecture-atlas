@@ -117,7 +117,7 @@ button i{font-style:normal;background:rgba(255,255,255,.14);border-radius:999px;
 <div id="labels"></div>
 <aside class="shelf" id="shelf" hidden><div class="lab">No single place</div></aside>
 <header class="top">
-  <div class="brand"><b>Lecture Atlas</b><span class="ver">v7</span><span class="status" id="status">Ready</span></div>
+  <div class="brand"><b>Lecture Atlas</b><span class="ver">v8</span><span class="status" id="status">Ready</span></div>
   <div class="btns">
     <button class="primary" id="bListen">Start listening</button>
     <button id="bSample">Play sample</button>
@@ -635,7 +635,7 @@ function startNative() {
 function switchToLocal(why) { if (engine === "local") return; engine = "local"; try { rec && rec.abort(); } catch (e) {} setStatus("work", why + " Switching to the speech model built into this page."); if (listening) startLocal(); }
 
 /* ---- the built-in speech model (Vosk): runs inside the page, so it works in any browser ---- */
-const VOSK_JS = "https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js", VOSK_MODEL = "https://ccoreilly.github.io/vosk-browser/models/vosk-model-small-en-us-0.15.tar.gz";
+const VOSK_JS = "https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js", VOSK_MODEL = new URL("models/vosk-model-small-en-us-0.15.tar.gz", location.href).href   /* our own copy of the Vosk small English model (Apache 2.0) */;
 let vModel = null, vRec = null, vLoading = null, vRate = 0, proc = null;
 function loadLocal() {
   if (vLoading) return vLoading;

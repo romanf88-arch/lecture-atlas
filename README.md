@@ -18,7 +18,7 @@ Open it here: https://romanf88-arch.github.io/lecture-atlas/
 ## What it uses
 
 - In Chrome and Edge, listening uses the browser's built-in speech recognition, which sends audio to the browser maker.
-- In other browsers, such as Brave and Firefox, listening uses the Vosk speech model, which runs inside the page. It downloads once (about 40 MB), keeps the audio on your computer, and is less accurate with unusual names.
+- In other browsers, such as Brave and Firefox, listening uses the Vosk speech model, which runs inside the page. It downloads once (about 40 MB), keeps the audio on your computer, and is less accurate with unusual names. The model file in `models/` is the Vosk small English model 0.15 from Alpha Cephei (https://alphacephei.com/vosk/models), distributed under the Apache 2.0 license. The page loads it with the vosk-browser library.
 - Names are looked up on Wikipedia. Dates and places come from Wikidata.
 - Pictures come from Wikipedia and Wikimedia Commons under their own licenses.
 - Country borders come from Natural Earth (public domain).
