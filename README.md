@@ -9,8 +9,9 @@ Open it here: https://romanf88-arch.github.io/lecture-atlas/
 1. Open the page in Chrome or Edge on a computer with a microphone. It does not run in other browsers, because it depends on the speech recognition built into those two.
 2. Press **Start listening** and talk. You can also type a sentence in the box at the bottom right.
 3. Click any portrait or card to open it. Click the × on a card to remove a wrong pin.
-4. **Place names** shows countries and cities. **Names only** stops it pinning general topics.
-5. **Reading list** collects everything mentioned and saves it as a web page.
+4. **Place names** shows borders, countries, and cities on your globe and on your students' globes.
+5. **Topics on** pins names and also general subjects said as ordinary words, such as radium, photosynthesis, or the printing press. Press it to switch to **Topics off**, which pins only the names of people, places, works, and events.
+6. **Reading list** collects everything mentioned and saves it as a web page.
 
 ## Sharing with students
 
@@ -20,6 +21,7 @@ Open it here: https://romanf88-arch.github.io/lecture-atlas/
    - Students can turn the globe, tap a pin, drag along the timeline, or tap a name. Whatever they choose is shown in all three places.
    - While a student is looking at an older item, new mentions wait, and a "New" button takes them to the latest one.
    - On a phone, the arrow on the globe hides it to leave more room for the list.
+   - Place names on a student's globe follow your Place names switch until that student presses the Place names button on their own page.
    - Students can copy or save the list.
 4. The student page has no microphone and does not ask for one.
 5. The computer keeps the same code until you press **New code**, so you can post the link once for a whole course. **Stop sharing** turns it off.

@@ -57,6 +57,13 @@ main{max-width:1160px;margin:0 auto;padding:0 16px 48px}
 .stage.folded .globe{height:44px}
 .stage.folded .globe canvas,.stage.folded .pin{display:none!important}
 .stage.folded .cap{background:none;padding-top:10px}
+.names{position:absolute;right:10px;top:8px;min-height:32px;padding:5px 11px;font-size:12.5px;border-radius:999px;background:rgba(12,18,38,.88)}
+.names[aria-pressed="true"]{background:var(--fg);color:#10131f;border-color:var(--fg);font-weight:600}
+.geos{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.geo{position:absolute;left:0;top:0;white-space:nowrap;color:rgba(214,228,255,.92);text-shadow:0 1px 3px rgba(0,0,12,.95),0 0 2px rgba(0,0,12,.9);opacity:0;transition:opacity .2s}
+.geo.country{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.geo.city{font-size:11px;font-weight:500;color:rgba(255,255,255,.95)}
+.stage.folded .names,.stage.folded .geos{display:none}
 #tl{display:block;width:100%;height:44px;touch-action:none;cursor:pointer}
 #tl text{font-family:var(--sans);font-size:11.5px;fill:var(--dim)}
 
@@ -116,7 +123,9 @@ footer{margin-top:26px;color:var(--dim);font-size:13px;line-height:1.5}
     <div class="cols">
       <div class="stage" id="stage">
         <div class="globe" id="globe">
+          <div class="geos" id="geos" aria-hidden="true"></div>
           <div class="pin" id="pin" hidden><img alt=""></div>
+          <button class="names" id="bNames" aria-pressed="false" title="Show country borders, country names, and major cities">Place names</button>
           <div class="cap" id="cap" aria-live="polite"></div>
           <button class="fold" id="bFold" aria-label="Hide the globe" title="Hide or show the globe"></button>
         </div>
@@ -129,7 +138,7 @@ footer{margin-top:26px;color:var(--dim);font-size:13px;line-height:1.5}
           <div class="list" id="list"></div>
           <div class="save"><button id="bCopy">Copy the list</button><button id="bSend" hidden>Send the list</button><button id="bSave">Save as a web page</button></div>
         </div>
-        <footer>Code <b id="codeShow"></b>. <a href="#" id="changeCode">Use a different code</a>. Drag the globe to turn it. Tap a pin, a date, or a name to see it in all three places. This page does not use your microphone or camera. Text and pictures come from Wikipedia and Wikimedia Commons under their own licenses. Coastlines come from Natural Earth.</footer>
+        <footer>Code <b id="codeShow"></b>. <a href="#" id="changeCode">Use a different code</a>. Drag the globe to turn it. Tap a pin, a date, or a name to see it in all three places. This page does not use your microphone or camera. Text and pictures come from Wikipedia and Wikimedia Commons under their own licenses. Coastlines and borders come from Natural Earth.</footer>
       </div>
     </div>
   </section>
@@ -209,6 +218,7 @@ function apply(d) {
   if (Array.isArray(d.l)) for (const pr of d.l.slice(0, 800)) { if (!Array.isArray(pr)) continue; const a = list[pr[0]], b = list[pr[1]], x = a && typeof a.t === "string" ? a.t.slice(0, 200) : "", y = b && typeof b.t === "string" ? b.t.slice(0, 200) : ""; if (x && y && x !== y) links.add(x < y ? x + "\n" + y : y + "\n" + x); }
   for (const k of [...links]) { const p = k.split("\n"); if (!known.has(p[0]) || !known.has(p[1])) links.delete(k); }
   items = [...known.values()];
+  if (presenterNames !== !!d.pn) { presenterNames = !!d.pn; syncNames(); }
   const newest = items[items.length - 1], follow = Date.now() > manualUntil;
   keepPlace(() => {
     render(fresh); syncPins(); syncArcs();
@@ -353,12 +363,12 @@ function initGlobe(land) {
   cv.addEventListener("pointermove", e => { const p = pts.get(e.pointerId); if (!p) return;
     if (pts.size === 1) { const k = 0.0065 * (camera.position.z / 3), q = new THREE.Quaternion().setFromEuler(new THREE.Euler((e.clientY - p.y) * k, (e.clientX - p.x) * k, 0, "XYZ")); targetQ.premultiply(q); globe.quaternion.premultiply(q); if (downAt && Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y) > 8) manualUntil = Date.now() + 30000; }
     p.x = e.clientX; p.y = e.clientY;
-    if (pts.size === 2 && pinch0) { const v = [...pts.values()]; userZoom = clamp(zoom0 - (Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) / pinch0 - 1) * 1.6, -1.2, 1.6); manualUntil = Date.now() + 30000; }
+    if (pts.size === 2 && pinch0) { const v = [...pts.values()]; userZoom = clamp(zoom0 - (Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) / pinch0 - 1) * 1.6, -1.5, 1.6); manualUntil = Date.now() + 30000; }
     kick(); });
   const up = e => { pts.delete(e.pointerId); pinch0 = 0; if (!pts.size) dragging = false; if (downAt && e.type === "pointerup" && Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y) < 8) tapGlobe(e.clientX, e.clientY); if (!pts.size) downAt = null; kick(); };
   cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
   cv.addEventListener("wheel", e => { userZoom = clamp(userZoom + e.deltaY * 0.0012, -1.2, 1.6); e.preventDefault(); kick(); }, { passive: false });
-  syncPins(); syncArcs(); focusSig = sigOf(selT); focusGlobe(); kick(2500);
+  syncPins(); syncArcs(); focusSig = sigOf(selT); focusGlobe(); syncNames(); kick(2500);
 }
 // where a pin is on the screen, or null if it is on the far side of the Earth
 function screenOf(p, w, h) {
@@ -395,6 +405,36 @@ function focusGlobe() {
     targetQ = quatFor(p.pos.clone().normalize()); }
   kick(2200);
 }
+/* ---- place names: country borders, country names, and major cities ----
+   They follow the instructor's own Place names switch until the student presses the button here. */
+let namesMode = "follow", presenterNames = false, namesShown = false, overlay = null, geoLoading = null; const geoLabels = [];
+const namesWanted = () => namesMode === "follow" ? presenterNames : namesMode === "on";
+function syncNames() {
+  const want = namesWanted(); $("bNames").setAttribute("aria-pressed", String(want)); if (!G) return;
+  if (want && !window.GEO_DATA) { if (!geoLoading) geoLoading = loadScript("geo.js").then(syncNames, () => { geoLoading = null; }); return; }
+  if (want && !overlay) buildNames();
+  namesShown = want && !!overlay; if (overlay) overlay.visible = namesShown;
+  if (!namesShown) for (const g of geoLabels) if (g.on) { g.on = false; g.el.style.opacity = "0"; }
+  kick();
+}
+function buildNames() {
+  const oc = document.createElement("canvas"); oc.width = 2048; oc.height = 1024; const o2 = oc.getContext("2d"), D = window.GEO_DATA;
+  o2.save(); o2.scale(2048 / 3600, 1024 / 1800); o2.lineWidth = 1.8; o2.strokeStyle = "rgba(205,228,255,.62)"; o2.stroke(new Path2D(D.borders)); o2.restore();
+  o2.fillStyle = "rgba(255,255,255,.96)"; for (const c of D.cities) { const rr = c[3] === 1 ? 2.4 : 1.8; o2.beginPath(); o2.ellipse((c[2] + 180) / 360 * 2048, (90 - c[1]) / 180 * 1024, rr / Math.max(0.3, Math.cos(c[1] * Math.PI / 180)), rr, 0, 0, 7); o2.fill(); }
+  overlay = new THREE.Mesh(new THREE.SphereGeometry(1.0015, 64, 48), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(oc), transparent: true, depthWrite: false })); G.globe.add(overlay);
+  const all = []; for (const c of D.countries) all.push([c, "country"]); for (const c of D.cities) all.push([c, "city"]); all.sort((x, y) => x[0][3] - y[0][3]);
+  for (const [c, cls] of all) { const el = document.createElement("div"); el.className = "geo " + cls; el.textContent = c[0]; $("geos").appendChild(el); geoLabels.push({ el, dir: dirOf(c[1], c[2]), rank: c[3], city: cls === "city", w: 0, on: false }); }
+}
+// called while the globe is being drawn: larger places get their names first, and names give way to pins and to each other
+function placeNames(w, h, R, at) {
+  const { camera, globe } = G, taken = []; for (const p of pins.values()) { const s = screenOf(p, w, h); if (s) taken.push([s[0] - 9, s[1] - 9, s[0] + 9, s[1] + 9]); } if (at) taken.push([at[0] - 25, at[1] - 25, at[0] + 25, at[1] + 25]);
+  for (const g of geoLabels) { const show = g.city ? (g.rank === 1 ? R > 150 : g.rank === 2 ? R > 230 : R > 330) : (g.rank === 1 ? R > 80 : g.rank === 2 ? R > 115 : R > 230); let vis = false, x = 0, y = 0;
+    if (show) { tmp.copy(g.dir).applyMatrix4(globe.matrixWorld); tmpN.copy(g.dir).applyQuaternion(globe.quaternion); if (tmpN.dot(tmpC.copy(camera.position).sub(tmp).normalize()) > 0.3) { tmp.project(camera); x = (tmp.x * 0.5 + 0.5) * w; y = (-tmp.y * 0.5 + 0.5) * h; vis = true; } }
+    if (vis) { const lw = g.w || (g.w = g.el.offsetWidth || 50), r = g.city ? [x + 3, y - 8, x + 8 + lw, y + 8] : [x - lw / 2 - 2, y - 7, x + lw / 2 + 2, y + 7]; for (const q of taken) if (r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]) { vis = false; break; }
+      if (vis) { taken.push(r); g.el.style.transform = g.city ? "translate(" + (x + 6).toFixed(1) + "px," + (y - 8).toFixed(1) + "px)" : "translate(" + (x - lw / 2).toFixed(1) + "px," + (y - 7).toFixed(1) + "px)"; } }
+    if (vis !== g.on) { g.on = vis; g.el.style.opacity = vis ? "1" : "0"; } }
+}
+$("bNames").onclick = () => { namesMode = namesWanted() ? "off" : "on"; syncNames(); };
 function kick(ms) { if (!G) return; animUntil = Math.max(animUntil, performance.now() + (ms || 1600)); if (!raf) raf = requestAnimationFrame(tick); }
 function tick(now) {
   raf = 0; const busy = dragging || now < animUntil; if (!busy && !items.length && now - lastDraw < 45) { raf = requestAnimationFrame(tick); return; }      // the slow turn before anything is mentioned runs at a low frame rate
@@ -412,6 +452,7 @@ function stepGlobe(dt) {
   // the portrait of the selected item rides on its pin
   const pe = $("pin"), sp = pins.get(selT), at = sp ? screenOf(sp, w, h) : null;
   if (at) pe.style.transform = "translate(" + at[0].toFixed(1) + "px," + at[1].toFixed(1) + "px) translate(-50%,-50%)"; if (pinShown !== !!at) { pinShown = !!at; pe.hidden = !at; }
+  if (namesShown) placeNames(w, h, pxPerUnit, at);
   renderer.render(G.scene, camera);
 }
 $("bFold").onclick = () => { const f = $("stage").classList.toggle("folded"); $("bFold").setAttribute("aria-label", f ? "Show the globe" : "Hide the globe"); store.set("lectureAtlasFold", f ? "1" : "0"); drawTimeline(); kick(); };

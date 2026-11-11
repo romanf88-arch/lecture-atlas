@@ -145,13 +145,13 @@ body.sharing .shelf{bottom:316px}
 <div id="labels"></div>
 <aside class="shelf" id="shelf" hidden><div class="lab">No single place</div></aside>
 <header class="top">
-  <div class="brand"><b>Lecture Atlas</b><span class="ver">v10</span><span class="status" id="status">Ready. Press Start listening and talk, or type a sentence at the bottom right.</span></div>
+  <div class="brand"><b>Lecture Atlas</b><span class="ver">v11</span><span class="status" id="status">Ready. Press Start listening and talk, or type a sentence at the bottom right.</span></div>
   <div class="btns">
     <button class="primary" id="bListen">Start listening</button>
     <button id="bShare" title="Show a code and a link that students can open to follow along on their own screens">Share with students<i id="nStu" hidden>0</i></button>
     <button id="bList">Reading list<i id="count">0</i></button>
     <button id="bNames" aria-pressed="false" title="Show country borders, country names, and major cities on the globe">Place names</button>
-    <button id="bTopics" aria-pressed="true" title="Switch between pinning everything and pinning only named people, places, and works">Names + topics</button>
+    <button id="bTopics" aria-pressed="true" title="On: also pins general subjects said as ordinary words, such as radium, photosynthesis, or the printing press. Off: pins only the names of people, places, works, and events.">Topics on</button>
     <button id="bSound" aria-pressed="true">Sound on</button>
     <button id="bClear">Clear</button>
     <button id="bFull">Full screen</button>
@@ -222,6 +222,8 @@ const STOP = new Set("the a an of in on at to for from by with and or but nor is
 const NOPROPER = new Set("january february march april may june july august september october november december monday tuesday wednesday thursday friday saturday sunday i mr mrs ms dr professor ok okay yeah yes no god".split(" "));
 const NOTPLACE = new Set("nice reading mobile bath split derby march china-ware orange buffalo phoenix jersey".split(" "));
 const CONN = new Set("of the de la le von van der del di da and for".split(" "));
+// words that are usually followed by a plain count, so "Chapter 11" is not read as a name the way "Apollo 11" is
+const COUNTED = new Set("chapter section page figure table part volume week unit module lecture slide question step room grade year day number act scene book version level item problem exercise appendix line verse article rule type phase stage class session lesson example option point test exam quiz group title season episode round".split(" "));
 let RANK = null;
 fetch("https://cdn.jsdelivr.net/gh/first20hours/google-10000-english@master/google-10000-english-no-swears.txt").then(r => r.ok ? r.text() : Promise.reject()).then(t => { const m = new Map(); t.split(/\s+/).forEach((w, i) => { if (w) m.set(w, i + 1); }); if (m.size > 5000) RANK = m; }).catch(() => {});
 const rank = w => RANK ? (RANK.get(w) || 99999) : 0;       // 0 means "no list loaded": treat every word as common
@@ -236,20 +238,22 @@ function singular(w) { if (w.length < 5) return null; if (/ies$/.test(w)) return
 function findSpans(ws, final) {
   const n = ws.length, limit = final ? n : Math.max(0, n - 2), out = [], inRun = new Uint8Array(n);
   const isCap = i => ws[i].cap && !NOPROPER.has(ws[i].lower);
+  const isNum = i => /^\d{1,4}$/.test(ws[i].w);          // a number can be part of a name: "War of 1812", "Apollo 11"
   let i = 0;
   while (i < limit) {
     const w = ws[i]; let ok = isCap(i);
-    if (ok && w.start) { const nextCap = i + 1 < n && isCap(i + 1); if (STOP.has(w.lower) || (!nextCap && rank(w.lower) <= 10000)) ok = false; }
+    if (ok && w.start) { const nextCap = i + 1 < n && (isCap(i + 1) || (isNum(i + 1) && !COUNTED.has(w.lower))); if (STOP.has(w.lower) || (!nextCap && rank(w.lower) <= 10000)) ok = false; }
     if (!ok) { i++; continue; }
     let j = i;
     while (j + 1 < n && j - i < 5) {
       if (isCap(j + 1)) j++;
-      else if (CONN.has(ws[j + 1].lower) && j + 2 < n && isCap(j + 2)) j += 2;
+      else if (isNum(j + 1) && !isNum(j) && !COUNTED.has(ws[j].lower)) j++;
+      else if (CONN.has(ws[j + 1].lower) && j + 2 < n && (isCap(j + 2) || (ws[j + 1].lower === "of" && isNum(j + 2)))) j += 2;
       else if (CONN.has(ws[j + 1].lower) && j + 3 < n && CONN.has(ws[j + 2].lower) && isCap(j + 3)) j += 3;
       else break;
     }
     if (!final && j >= limit - 1) break;                   // the name may still be growing: wait for more words
-    for (let a = i; a <= j; a++) if (isCap(a)) for (let b = a; b <= j; b++) if (isCap(b)) out.push({ a, b, kind: "proper", title: ws.slice(a, b + 1).map(x => x.w).join(" ") });
+    for (let a = i; a <= j; a++) if (isCap(a)) for (let b = a; b <= j; b++) if (isCap(b) || (b > a && isNum(b))) out.push({ a, b, kind: "proper", title: ws.slice(a, b + 1).map(x => x.w).join(" ") });
     for (let k = i; k <= j; k++) inRun[k] = 1;
     i = j + 1;
   }
@@ -261,7 +265,7 @@ function findSpans(ws, final) {
     const s = singular(lw[lw.length - 1]); if (s) out.push(Object.assign({ a, b, kind: "concept", title: lw.slice(0, -1).concat(s).join(" ") }, extra)); };
   for (let k = 0; k < limit; k++) {
     if (!content(k)) continue;
-    if (k + 2 < limit && (content(k + 2) || (!inRun[k + 2] && /^(one|two|three|four|five|i|ii|iii)$/.test(ws[k + 2].lower))) && !inRun[k + 1] && (content(k + 1) || ws[k + 1].lower === "of" || ws[k + 1].lower === "and")) add(k, k + 2);
+    if (k + 2 < limit && (content(k + 2) || (!inRun[k + 2] && (/^(one|two|three|four|five|i|ii|iii)$/.test(ws[k + 2].lower) || (ws[k + 1].lower === "of" && /^\d{3,4}$/.test(ws[k + 2].w))))) && !inRun[k + 1] && (content(k + 1) || ws[k + 1].lower === "of" || ws[k + 1].lower === "and")) add(k, k + 2);
     if (k + 1 < limit && content(k + 1)) add(k, k + 1);
     if (RANK && ws[k].lower.length >= 4 && !NOTPLACE.has(ws[k].lower)) add(k, k);
   }
@@ -280,7 +284,7 @@ function lookup(titles) {
   return Promise.all(titles.map(t => cache.get(t))).then(a => { const m = new Map(); titles.forEach((t, i) => m.set(t, a[i])); return m; });
 }
 async function fetchBatch(batch) {
-  const base = { action: "query", titles: batch.join("|"), redirects: 1, prop: "pageimages|extracts|description|coordinates|pageprops|pageviews|info", piprop: "thumbnail", pithumbsize: 500, pilimit: 50, exintro: 1, explaintext: 1, exsentences: 2, exlimit: 20, colimit: 50, ppprop: "wikibase_item|disambiguation", pvipdays: 30, inprop: "url" };
+  const base = { action: "query", titles: batch.join("|"), redirects: 1, prop: "pageimages|extracts|description|coordinates|pageprops|pageviews|info", piprop: "thumbnail", pithumbsize: 500, pilimit: 50, exintro: 1, explaintext: 1, exsentences: 2, exlimit: 20, colimit: 50, coprop: "globe", ppprop: "wikibase_item|disambiguation", pvipdays: 30, inprop: "url" };
   const pages = new Map(), fwd = new Map(), red = new Map(); let cont = null;
   for (let round = 0; round < 4; round++) {
     const j = await wp(cont ? Object.assign({}, base, cont) : base), q = j.query || {};
@@ -289,7 +293,9 @@ async function fetchBatch(batch) {
     if (!j.continue) break; cont = j.continue;
   }
   const out = new Map();
-  for (const t of batch) { let x = fwd.get(t) || t; x = red.get(x) || x; const p = pages.get(x); out.set(t, p && !p.missing && !p.invalid ? p : null); }
+  for (const t of batch) { let x = fwd.get(t) || t; x = red.get(x) || x; const p = pages.get(x);
+    if (p && p.coordinates) { p.coordinates = p.coordinates.filter(c => !c.globe || c.globe === "earth"); if (!p.coordinates.length) delete p.coordinates; }      // the Moon and Mars have coordinates too, but not on this globe
+    out.set(t, p && !p.missing && !p.invalid ? p : null); }
   return out;
 }
 const MEDIA = /\b(song|album|film|band|single|episode|television|tv series|video game|novel|ep|musical|comics?|manga|magazine|company|brand|village|town|surname|given name|sitcom|record label|restaurant|podcast|newspaper)\b/i;
@@ -299,12 +305,12 @@ function acceptable(p, span) {
   const desc = p.description || ""; if (/disambiguation|wikimedia|list article|family name|given name|surname/i.test(desc)) return false;
   if (!desc && !p.extract) return false;
   if (/^(List|Lists|Outline|Index|Glossary|Timeline) of /i.test(p.title) || /\bcentury\b|\bmillennium\b|^\d{1,4}s?( BC)?$/i.test(p.title)) return false;
-  if (span.uni) { const t = p.title.toLowerCase(), w = span.title; if (t !== w && !(t.slice(0, 8) === w.slice(0, 8) && Math.abs(t.length - w.length) <= 2)) return false; }
+  if (span.uni) { const t = p.title.toLowerCase().replace(/^the /, ""), w = span.title;   /* "buddha" matches the article "The Buddha" */ if (t !== w && !(t.slice(0, 8) === w.slice(0, 8) && Math.abs(t.length - w.length) <= 2)) return false; }
   let views = -1; if (p.pageviews) { views = 0; for (const k in p.pageviews) views += p.pageviews[k] || 0; }
   const geo = !!(p.coordinates && p.coordinates.length);
   if (span.kind === "proper") { if (views >= 0 && views < 400) return false;
     if (span.a === span.b) {            // one capitalized word: speech recognition sometimes capitalizes ordinary nouns ("Lamppost")
-      const w = span.title, t = p.title.toLowerCase(), same = t === w.toLowerCase() || (t.slice(0, 8) === w.toLowerCase().slice(0, 8) && Math.abs(t.length - w.length) <= 2);
+      const w = span.title, t = p.title.toLowerCase().replace(/^the /, ""), same = t === w.toLowerCase() || (t.slice(0, 8) === w.toLowerCase().slice(0, 8) && Math.abs(t.length - w.length) <= 2);
       if (!same && !geo && !/^[A-Z0-9]{2,6}$/.test(w)) return false;   // it only redirects to something with a different name, and is not a place or an acronym
       if (!topics && !geo && rank(w.toLowerCase()) <= 10000) return false; }
     return true; }
@@ -334,7 +340,7 @@ async function sparql(qids) {
   const out = new Map(); for (const b of (await r.json()).results.bindings) { const o = {}; for (const k in b) o[k] = b[k].value; out.set(o.i.replace(/^.*\//, ""), o); } return out;
 }
 const yearOf = s => { if (!s) return null; const m = /^(-?\d{1,6})-/.exec(s); if (!m) return null; const y = parseInt(m[1], 10); return y <= 0 ? y - 1 : y; };
-const pointOf = s => { if (!s) return null; const m = /Point\(([-\d.eE]+) ([-\d.eE]+)\)/.exec(s); return m ? { lon: parseFloat(m[1]), lat: parseFloat(m[2]) } : null; };
+const pointOf = s => { if (!s || (/^</.test(s) && !/\/Q2>/.test(s))) return null;   /* Wikidata marks a point on the Moon or Mars with the name of that body in front */ const m = /Point\(([-\d.eE]+) ([-\d.eE]+)\)/.exec(s); return m ? { lon: parseFloat(m[1]), lat: parseFloat(m[2]) } : null; };
 const WORKS = new Set("Q3305213 Q7725634 Q571 Q47461344 Q11424 Q13442814 Q5398426 Q482994 Q7366 Q386724 Q17537576 Q8261 Q25379 Q49848 Q1344 Q179700 Q838948 Q4502142 Q860861 Q191067 Q36279 Q1980247 Q23622 Q7397 Q21198".split(" "));
 const fmtYear = y => y == null ? "" : y < 0 ? "c. " + (-y) + " BC" : String(y);
 const GEO = /\b(city|capital|town|country|state|province|region|continent|river|sea|ocean|island|mountain|municipality|peninsula|county|borough|village)\b/i;
@@ -701,9 +707,9 @@ $("bListen").onclick = () => listening ? stopListening() : startListening();
 $("typeForm").addEventListener("submit", ev => { ev.preventDefault(); audioInit(); const v = $("typeBox").value; $("typeBox").value = ""; heardFinal(v); });
 $("bFull").onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
 $("bSound").onclick = () => { soundOn = !soundOn; $("bSound").textContent = soundOn ? "Sound on" : "Sound off"; $("bSound").setAttribute("aria-pressed", String(soundOn)); };
-$("bTopics").onclick = () => { topics = !topics; $("bTopics").textContent = topics ? "Names + topics" : "Names only"; $("bTopics").setAttribute("aria-pressed", String(topics)); cache.clear(); };
+$("bTopics").onclick = () => { topics = !topics; $("bTopics").textContent = topics ? "Topics on" : "Topics off"; $("bTopics").setAttribute("aria-pressed", String(topics)); cache.clear(); };
 $("bNames").onclick = () => {
-  namesOn = !namesOn; $("bNames").setAttribute("aria-pressed", String(namesOn)); if (overlay) overlay.visible = namesOn;
+  namesOn = !namesOn; $("bNames").setAttribute("aria-pressed", String(namesOn)); if (overlay) overlay.visible = namesOn; shareDirty();
   if (namesOn && !geoLabels.length && window.GEO_DATA) { const all = []; for (const c of GEO_DATA.countries) all.push([c, "country"]); for (const c of GEO_DATA.cities) all.push([c, "city"]); all.sort((x, y) => x[0][3] - y[0][3]);
     for (const [c, cls] of all) { const el = document.createElement("div"); el.className = "geo " + cls; el.textContent = c[0]; labelsBox.prepend(el); geoLabels.push({ el, dir: dirOf(c[1], c[2]), rank: c[3], city: cls === "city", w: 0, on: false }); } }
   if (!namesOn) for (const g of geoLabels) { g.el.style.opacity = "0"; g.on = false; }
@@ -756,7 +762,7 @@ function shareState() {
   // c: when Clear was last pressed, g: pins removed by hand. Student pages keep what they have already received unless one of these says to drop it, so reloading this page does not empty their lists.
   // l: which items are connected, as pairs of positions in the list. Each item also carries its place (a, o) and years (y, z) so student pages can draw their own globe and timeline.
   const list = order.slice(-250), idx = new Map(list.map((e, i) => [e.title, i])), l = []; for (const k of edges) { const p = k.split("|"), i = idx.get(p[0]), j = idx.get(p[1]); if (i != null && j != null) l.push([i, j]); }
-  return { v: 2, t: Date.now(), live: listening, c: clearStamp, g: [...blocked].slice(-150), l, items: list.map(e => { const o = { t: e.title, k: e.kind }; if (e.desc) o.d = e.desc; if (e.extract) o.x = e.extract.length > 230 ? e.extract.slice(0, 230).replace(/\s+\S*$/, "") + "…" : e.extract; if (e.thumb) o.i = e.thumb; const w = when(e); if (w) o.w = w; if (e.lat != null) { o.a = +e.lat.toFixed(2); o.o = +e.lon.toFixed(2); } if (e.y0 != null) o.y = e.y0; if (e.y1 != null) o.z = e.y1;
+  return { v: 2, t: Date.now(), live: listening, pn: namesOn ? 1 : 0, c: clearStamp, g: [...blocked].slice(-150), l, items: list.map(e => { const o = { t: e.title, k: e.kind }; if (e.desc) o.d = e.desc; if (e.extract) o.x = e.extract.length > 230 ? e.extract.slice(0, 230).replace(/\s+\S*$/, "") + "…" : e.extract; if (e.thumb) o.i = e.thumb; const w = when(e); if (w) o.w = w; if (e.lat != null) { o.a = +e.lat.toFixed(2); o.o = +e.lon.toFixed(2); } if (e.y0 != null) o.y = e.y0; if (e.y1 != null) o.z = e.y1;
     if (e.url !== "https://en.wikipedia.org/wiki/" + encodeURIComponent(e.title.replace(/ /g, "_"))) o.u = e.url; return o; }) };
 }
 function shareDirty() { if (!shareStarted || !share) return; clearTimeout(shareTimer); shareTimer = setTimeout(sharePublish, 600); }
